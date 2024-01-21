@@ -5,8 +5,9 @@
  */
 
 var app = require('../app');
-var debug = require('debug')('the-readers-server:server');
+var debug = require('debug')('app:debug');
 var http = require('http');
+var os = require('os');
 
 /**
  * Get port from environment and store in Express.
@@ -77,6 +78,19 @@ function onError(error) {
   }
 }
 
+function getLocalExternalIp() {
+  const interfaces = os.networkInterfaces();
+  for (const devName in interfaces) {
+    const iface = interfaces[devName];
+    for (const alias of iface) {
+      if (alias.family === 'IPv4' && !alias.internal) {
+        return alias.address;
+      }
+    }
+  }
+  return '0.0.0.0';
+}
+
 /**
  * Event listener for HTTP server "listening" event.
  */
@@ -86,5 +100,14 @@ function onListening() {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  const myIP = getLocalExternalIp();
+  debug(`Listening on ${bind} \n` +
+        `Local: http://localhost:${port} \n` +
+        `On Your Network http://${myIP}:${port}`
+      );
 }
+
+
+
+
+
