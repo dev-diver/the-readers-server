@@ -1,26 +1,15 @@
 #!/usr/bin/env node
-
-/**
- * Module dependencies.
- */
-
 var app = require("../app");
 var debug = require("debug")("app:debug");
 var http = require("http");
 var os = require("os");
-
-/**
- * Get port from environment and store in Express.
- */
+const initializeSocket = require('../socket');
 
 var port = normalizePort(process.env.PORT || "3000");
 app.set("port", port);
 
-/**
- * Create HTTP server.
- */
-
 var server = http.createServer(app);
+initializeSocket(server); //socket 연결
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -99,5 +88,3 @@ function onListening() {
   const myIP = getLocalExternalIp();
   debug(`Listening on ${bind} \n` + `Local: http://localhost:${port} \n` + `On Your Network http://${myIP}:${port}`);
 }
-
-module.export = server;
