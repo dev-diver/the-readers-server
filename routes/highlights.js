@@ -3,7 +3,7 @@
 var express = require('express');
 var router = express.Router();
 
-import { Highlight, HtmlContent } from '../database/mongoose.js';
+const { Highlight } = require('../database/mongoose.js');
 
 router.get('/', (req, res) => {
   Highlight.find().then(highlights => res.json(highlights));
@@ -49,27 +49,4 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-/* text */
-router.post('/api/save-text', async (req, res) => {
-  try {
-    const { html } = req.body;
-    // DB에 html 저장 로직
-    const newHtmlContent = new HtmlContent({ html });
-    await newHtmlContent.save();
-    res.status(200).send('내용 저장 성공');
-  } catch (error) {
-    res.status(500).send('Error occurred: ' + error.message);
-  }
-});
-
-router.get('/api/get-text', async (req, res) => {
-  try {
-    // DB에서 html 데이터 가져오기
-    const htmlContent = await HtmlContent.findOne({}).sort({ _id: -1 }); // 가장 최근에 저장된 내용 가져오기
-    res.json({ html: htmlContent });
-  } catch (error) {
-    res.status(500).send('Error occurred: ' + error.message);
-  }
-});
-
-
+module.exports = router;
