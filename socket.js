@@ -18,22 +18,34 @@ module.exports = (server) => {
         clientCounter++; // 다음 클라이언트를 위해 카운터 증가
     
         console.log("A user connected: " + socket.id + " with color: " + colors[clientId]);
-    
+        
+        socket.on("disconnect", () => {
+            console.log("User disconnected");
+            clientCounter--; // 추가 확인 (진태)
+        });
+
+        //pointer
         socket.on("movepointer", (data) => {
         // 커서 위치와 클라이언트 ID 매핑
-        const pointerData = {
-            id: socket.id,
-            color: colors[clientId], // 색상 추가
-            x: data.x,
-            y: data.y,
-        };
-        io.emit("updatepointer", pointerData);
+            const pointerData = {
+                id: socket.id,
+                color: colors[clientId], // 색상 추가
+                x: data.x,
+                y: data.y,
+            };
+            io.emit("updatepointer", pointerData);
+        });
+
+        //pdf viewer
+        socket.on('attention', (data) => {
+            console.log(data);
+            io.emit("attention", data);
+        })
+
+        socket.on("attention", data => { 
+            socket.broadcast.emit(data) 
         });
     
-        socket.on("disconnect", () => {
-        console.log("User disconnected");
-        clientCounter--; // 추가 확인 (진태)
-        });
     });
     return io;
 }
