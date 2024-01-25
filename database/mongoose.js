@@ -1,9 +1,9 @@
 /*********************/
 /* mongoDB */
 
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-mongoose.connect('mongodb://localhost:27017', {
+mongoose.connect("mongodb://127.0.0.1:27017", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -16,13 +16,13 @@ const highlightInfoSchema = new Schema({
   startContainer: Schema.Types.Mixed,
   startOffset: Number,
   endContainer: Schema.Types.Mixed,
-  endOffset: Number
+  endOffset: Number,
 });
 
 const highlightSchema = new Schema({
-  highlightInfos: [highlightInfoSchema] 
+  highlightInfos: [highlightInfoSchema],
 });
 
-const Highlight = mongoose.model('Highlights', highlightSchema);
+const Highlight = mongoose.model("Highlights", highlightSchema);
 
 module.exports = { Highlight };
