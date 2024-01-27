@@ -1,11 +1,20 @@
 // var app = require("../app");
-var express = require('express');
+var express = require("express");
 var router = express.Router();
 
-var highlightsRouter = require('./highlights');
+const userRouter = require("./user");
+router.use("/user", userRouter);
+
+router.get("/", function (req, res, next) {
+  res.send("없는 api");
+});
+
+var highlightsRouter = require("./highlights");
+var booksRouter = require("./books");
 
 // app.use('/highlights', highlightsRouter);
-router.use('/highlights', highlightsRouter);
+router.use("/highlights", highlightsRouter);
+router.use("/books", booksRouter);
 
 // app.use(function(req, res, next) {
 //   next(createError(404)); //책 속의 한줄 넣으면 어떨지?
@@ -20,6 +29,5 @@ router.use('/highlights', highlightsRouter);
 //   res.status(err.status || 500);
 //   res.render('error');
 // });
-
 
 module.exports = router;
