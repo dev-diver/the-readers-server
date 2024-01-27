@@ -1,3 +1,6 @@
 node_modules/
 public/
 .env
+
+sql_docker/data
+sql_docker/initdb.d

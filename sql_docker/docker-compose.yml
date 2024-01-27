@@ -1,0 +1,17 @@
+version: "3"
+services:
+  db:
+    container_name: mariadb
+    image: mariadb:10.2
+    ports:
+      - 3306:3306
+    volumes:
+      - ./conf.d:/etc/mysql/conf.d
+      - ./data:/var/lib/mysql
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    command: >
+      bash -c " chmod 644 /etc/mysql/conf.d/*.cnf && /docker-entrypoint.sh mysqld "
+    env_file: .env
+    environment:
+      TZ: Asia/Seoul
+    restart: always
