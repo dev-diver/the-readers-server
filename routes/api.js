@@ -6,7 +6,7 @@ const userRouter = require("./user");
 router.use("/user", userRouter);
 
 router.get("/", function (req, res, next) {
-  res.send("없는 api");
+	res.send("없는 api");
 });
 
 var highlightsRouter = require("./highlights");
