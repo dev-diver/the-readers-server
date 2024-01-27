@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "root",
+    "password": "12341234",
+    "database": "theReader",
+    "host": "127.0.0.1",
+    "port": 3307,
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": "12341234",
+    "database": "jungle",
+    "host": "127.0.0.1",
+    "port": 3307,
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "jungle2",
+    "host": "127.0.0.1",
+    "port": 3307,
+    "dialect": "mysql"
+  }
+}

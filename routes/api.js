@@ -2,6 +2,13 @@
 var express = require("express");
 var router = express.Router();
 
+const userRouter = require("./user");
+router.use("/user", userRouter);
+
+router.get("/", function (req, res, next) {
+  res.send("없는 api");
+});
+
 var highlightsRouter = require("./highlights");
 var booksRouter = require("./books");
 

@@ -1,20 +1,26 @@
 var express = require("express");
 var router = express.Router();
+const Book = require("../models/book");
+const { Op } = require("sequelize");
 
 router.get("/search", function (req, res) {
   const bookname = req.query.bookname;
 
-  const books = [
-    { name: "알고리즘", id: "facebook" },
-    { name: "알고리즘 짱", id: "example" },
-    { name: "Clean Code", id: "facebook" },
-    { name: "운영체제", id: "google" },
-    { name: "C기초", id: "facbook" },
-  ];
-
-  const filteredBooks = books.filter((book) => book.name.includes(bookname));
-
-  res.json({ message: "검색 성공", data: filteredBooks });
+  Book.findAll({
+    where: {
+      name: {
+        [Op.like]: `%${bookname}%`,
+      },
+    },
+  })
+    .then((books) => {
+      console.log(books);
+      res.json({ message: "검색 성공", data: books });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({ message: "검색 실패", data: [] });
+    });
 });
 
 module.exports = router;
