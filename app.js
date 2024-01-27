@@ -4,11 +4,20 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var cors = require("cors");
+var session = require('express-session');
+var dotenv = require('dotenv');
+var passport = require('passport');
 
+dotenv.config();
 var reactRouter = require("./routes/react");
+var pageRouter = require('./routes/page');
+
 var apiRouter = require("./routes/api");
+var authRouter = require('./routes/auth');
 
 var { sequelize } = require("./models");
+var passportConfig = require('./passport');
+
 
 var app = express();
 
@@ -20,6 +29,7 @@ sequelize
   .sync({ force: false })
   .then(() => {
     console.log("데이터베이스 연결 성공");
+
   })
   .catch((err) => {
     console.error(err);
@@ -32,8 +42,23 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use("/src", express.static("public"));
 app.use("/", express.static(path.join(__dirname, "public")));
+app.use('/img', express.static(path.join(__dirname, 'uploads')));
+app.use(session({
+  resave: false,
+  saveUninitialized: false,
+  secret: process.env.COOKIE_SECRET,
+  cookie: {
+    httpOnly: true,
+    secure: false,
+  },
+}));
+
+app.use(passport.session());
+app.use(passport.session());
 
 app.use("/api", apiRouter);
+app.use('/page', pageRouter);
+app.use('/auth', authRouter);
 app.use("*", reactRouter);
 
 // catch 404 and forward to error handler

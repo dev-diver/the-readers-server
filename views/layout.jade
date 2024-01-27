@@ -1,7 +1,47 @@
 doctype html
 html
   head
+    meta(charset="UTF-8")
     title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
+    meta(name="viewport", content="width=device-width, user-scalable=no")
+    meta(http-equiv="X-UA-Compatible", content="IE=edge")
+    link(rel="stylesheet", href="/main.css")
+
   body
-    block content
+    .container
+      .profile-wrap
+        .profile
+          if user && user.id
+            .user-name= '안녕하세요! ' + user.nick + '님'
+            .half
+              div 팔로잉
+              .count.following-count= followingCount
+            .half
+              div 팔로워
+              .count.follower-count= followerCount
+            input#my-id(type="hidden", value=user.id)
+            a#my-profile(href="/profile", class="btn") 내 프로필
+            a#logout(href="/auth/logout", class="btn") 로그아웃
+          else
+            form#login-form(action="/auth/login", method="post")
+              .input-group
+                label(for="email") 이메일
+                input#email(type="email", name="email", required, autofocus)
+              .input-group
+                label(for="password") 비밀번호
+                input#password(type="password", name="password", required)
+              a#join(href="/join", class="btn") 회원가입
+              br
+              button#login(type="submit", class="btn") 로그인
+              br
+              a#kakao(href="/auth/kakao", class="btn") 카카오톡
+
+  block content
+  script(src="https://unpkg.com/axios/dist/axios.min.js")
+  script.
+    window.onload = () => {
+      if (new URL(location.href).searchParams.get('error')) {
+        alert(new URL(location.href).searchParams.get('error'));
+      }
+    };
+  block script

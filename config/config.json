@@ -4,7 +4,7 @@
     "password": "12341234",
     "database": "theReader",
     "host": "127.0.0.1",
-    "port": 3307,
+    "port":3306,
     "dialect": "mysql"
   },
   "test": {
@@ -12,7 +12,7 @@
     "password": "12341234",
     "database": "jungle",
     "host": "127.0.0.1",
-    "port": 3307,
+    "port":3306,
     "dialect": "mysql"
   },
   "production": {
@@ -20,7 +20,7 @@
     "password": null,
     "database": "jungle2",
     "host": "127.0.0.1",
-    "port": 3307,
+    "port":3306,
     "dialect": "mysql"
   }
 }
