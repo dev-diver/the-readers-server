@@ -3,7 +3,7 @@
 var express = require("express");
 var router = express.Router();
 
-const { Highlight } = require("../database/mongoose.js");
+const { Highlight } = require("../../database/mongoose.js");
 
 router.get("/", (req, res) => {
 	Highlight.find().then((highlights) => res.json(highlights));

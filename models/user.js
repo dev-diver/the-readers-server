@@ -1,8 +1,3 @@
-const { Sequelize, DataTypes, Model } = require("sequelize");
-const { sequelize } = require(__dirname + "/../config/db.js");
-const Room = require("./room");
-const Book = require("./book");
-
 module.exports = (sequelize, DataTypes) => {
 	const User = sequelize.define(
 		"User", // 어디 필드가 unique인지 확인 필요

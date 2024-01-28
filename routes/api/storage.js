@@ -1,20 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const AWS = require("aws-sdk");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const fs = require("fs");
-
-const REGION = process.env.S3_REGION;
-const ACCESS_KEY_ID = process.env.S3_ACCESS_KEY_ID;
-const SECRET_ACCESS_KEY_ID = process.env.S3_SECRET_ACCESS_KEY_ID;
-const BUCKET_NAME = process.env.S3_BUCKET_NAME;
-
-AWS.config.update({
-	region: REGION,
-	accessKeyId: ACCESS_KEY_ID,
-	secretAccessKey: SECRET_ACCESS_KEY_ID,
-});
+const s3 = require("../../config/aws");
+const BUCKET_NAME = require("../../config/aws");
 
 router.route("/").post(upload.single("file"), async (req, res, next) => {
 	const file = req.file;
@@ -25,8 +15,8 @@ router.route("/").post(upload.single("file"), async (req, res, next) => {
 		Body: fs.createReadStream(file.path),
 	};
 
-	const uploads3 = new AWS.S3.ManagedUpload({ params: uploadParams });
-	uploads3
+	const s3Upload = s3.ManagedUpload({ params: uploadParams });
+	s3Upload
 		.promise()
 		.then((data) => {
 			console.log(data);

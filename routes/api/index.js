@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 
-const userRouter = require("./user");
+const userRouter = require("../../models/user");
 router.use("/user", userRouter);
 
 router.get("/", function (req, res, next) {
@@ -12,7 +12,6 @@ var highlightsRouter = require("./highlights");
 var booksRouter = require("./books");
 var storageRouter = require("./storage");
 
-// app.use('/highlights', highlightsRouter);
 router.use("/highlights", highlightsRouter);
 router.use("/books", booksRouter);
 router.use("/storage", storageRouter);
