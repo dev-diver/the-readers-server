@@ -1,20 +1,20 @@
-// var app = require("../app");
 var express = require("express");
 var router = express.Router();
 
-const userRouter = require("./user");
+const userRouter = require("../../models/user");
 router.use("/user", userRouter);
 
 router.get("/", function (req, res, next) {
-  res.send("없는 api");
+	res.send("없는 api");
 });
 
 var highlightsRouter = require("./highlights");
 var booksRouter = require("./books");
+var storageRouter = require("./storage");
 
-// app.use('/highlights', highlightsRouter);
 router.use("/highlights", highlightsRouter);
 router.use("/books", booksRouter);
+router.use("/storage", storageRouter);
 
 // app.use(function(req, res, next) {
 //   next(createError(404)); //책 속의 한줄 넣으면 어떨지?
