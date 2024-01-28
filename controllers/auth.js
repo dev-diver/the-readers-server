@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const passport = require("passport");
-const User = require("../models/");
+const User = require("@models/");
 //회원가입 controller
 exports.signup = async (req, res, next) => {
 	const { email, nick, password } = req.body;

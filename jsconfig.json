@@ -1,6 +1,14 @@
 {
     "compilerOptions":{
         "baseUrl": ".",
+        "paths": {
+            "@config/*": ["./config/*"],
+            "@controllers/*": ["./controllers/*"],
+            "@models/*": ["./models/*"],
+            "@routes/*": ["./routes/*"],
+            "@services/*": ["./services/*"],
+        }
     },
-    "include":["."]
+    "exclude":["node_modules","public","uploads"],
+    "include":["./**/*"],
 }
