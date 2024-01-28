@@ -11,9 +11,11 @@ router.get("/", function (req, res, next) {
 var highlightsRouter = require("./highlights");
 var booksRouter = require("./books");
 var storageRouter = require("./storage");
+var roomRouter = require("./rooms");
 
 router.use("/highlights", highlightsRouter);
 router.use("/books", booksRouter);
+router.use("/rooms", roomRouter);
 router.use("/storage", storageRouter);
 
 // app.use(function(req, res, next) {

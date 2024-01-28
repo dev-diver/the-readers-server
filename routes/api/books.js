@@ -1,9 +1,7 @@
 var express = require("express");
 var router = express.Router();
-const { sequelize } = require("../../config/db.js");
-const { Op, DataTypes } = require("sequelize");
-const initBookModel = require("../../models/book.js");
-const Book = initBookModel(sequelize, DataTypes);
+const { Op } = require("sequelize");
+const Book = require("../../models/book.js");
 
 router.route("/:id").get((req, res) => {
 	const id = req.params.id;

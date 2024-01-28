@@ -1,4 +1,7 @@
-module.exports = (sequelize, DataTypes) => {
+const { sequelize } = require("../config/db.js");
+const { DataTypes } = require("sequelize");
+
+const initUserModel = (sequelize, DataTypes) => {
 	const User = sequelize.define(
 		"User", // 어디 필드가 unique인지 확인 필요
 		{
@@ -54,3 +57,4 @@ module.exports = (sequelize, DataTypes) => {
 
 	return User;
 };
+module.exports = initUserModel(sequelize, DataTypes);

@@ -1,4 +1,6 @@
-module.exports = (sequelize, DataTypes) => {
+const { sequelize } = require("../config/db.js");
+const { DataTypes } = require("sequelize");
+const initBookModel = (sequelize, DataTypes) => {
 	const Book = sequelize.define(
 		"Book",
 		{
@@ -29,3 +31,5 @@ module.exports = (sequelize, DataTypes) => {
 
 	return Book;
 };
+
+module.exports = initBookModel(sequelize, DataTypes);
