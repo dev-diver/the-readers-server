@@ -1,35 +1,33 @@
 const { Sequelize, DataTypes, Model } = require("sequelize");
-const { sequelize } = require(__dirname + "/../config/db.js");
 
-const Book = sequelize.define(
-	"book",
-	{
-		id: {
-			type: DataTypes.INTEGER,
-			primaryKey: true,
-			autoIncrement: true,
-			allowNull: false,
+module.exports = (sequelize, DataTypes) => {
+	const Book = sequelize.define(
+		"Book",
+		{
+			name: {
+				type: DataTypes.STRING(50),
+				allowNull: false,
+				unique: true,
+			},
+			url: {
+				type: DataTypes.STRING,
+				allowNull: false,
+			},
 		},
-		name: {
-			type: DataTypes.STRING(50),
-			allowNull: false,
-			unique: true,
-		},
-		url: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-	},
-	{
-		sequelize,
-		timestamps: true,
-		underscored: false,
-		modelName: "Book",
-		tableName: "Books",
-		paranoid: true,
-		charset: "utf8",
-		collate: "utf8_general_ci",
-	}
-);
+		{
+			sequelize,
+			timestamps: true,
+			underscored: false,
+			paranoid: true,
+			charset: "utf8",
+			collate: "utf8_general_ci",
+		}
+	);
 
-module.exports = Book;
+	Book.associate = (models) => {
+		Book.belongsToMany(models.Room, { through: "Room_Book" });
+		Book.belongsToMany(models.User, { through: "User_Book" });
+	};
+
+	return Book;
+};
