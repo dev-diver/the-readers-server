@@ -1,6 +1,7 @@
-const { Sequelize, DataTypes, Model } = require("sequelize");
+const { sequelize } = require("../config/db.js");
+const { DataTypes } = require("sequelize");
 
-module.exports = (sequelize, DataTypes) => {
+const initRoomModel = (sequelize, DataTypes) => {
 	const Room = sequelize.define(
 		"Room",
 		{
@@ -23,3 +24,5 @@ module.exports = (sequelize, DataTypes) => {
 
 	return Room;
 };
+
+module.exports = initRoomModel(sequelize, DataTypes);

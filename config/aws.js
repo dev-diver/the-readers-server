@@ -11,4 +11,6 @@ AWS.config.update({
 	secretAccessKey: SECRET_ACCESS_KEY_ID,
 });
 
-exports.s3 = new AWS.S3();
+exports.s3Upload = (uploadParams) => {
+	return new AWS.S3.ManagedUpload({ params: uploadParams });
+};

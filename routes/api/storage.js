@@ -3,8 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const fs = require("fs");
-const s3 = require("../../config/aws");
-const BUCKET_NAME = require("../../config/aws");
+const { s3Upload, BUCKET_NAME } = require("../../config/aws");
 
 router.route("/").post(upload.single("file"), async (req, res, next) => {
 	const file = req.file;
@@ -15,8 +14,7 @@ router.route("/").post(upload.single("file"), async (req, res, next) => {
 		Body: fs.createReadStream(file.path),
 	};
 
-	const s3Upload = s3.ManagedUpload({ params: uploadParams });
-	s3Upload
+	s3Upload(uploadParams)
 		.promise()
 		.then((data) => {
 			console.log(data);
