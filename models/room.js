@@ -9,7 +9,7 @@ const initRoomModel = (sequelize, DataTypes) => {
 		},
 		{
 			sequelize,
-			timestamps: true,
+			//timestamps: true,
 			underscored: false,
 			paranoid: true,
 			charset: "utf8",

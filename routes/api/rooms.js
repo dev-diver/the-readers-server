@@ -1,9 +1,11 @@
 const express = require("express");
+const router = express.Router();
+const { Op } = require("sequelize");
 const Room = require("../../models/room");
 const Book = require("../../models/book");
 
-const router = express.Router();
-// GET /api/rooms/:bookName
+//rooms
+
 router.get("/search", async (req, res) => {
 	const bookName = req.query.bookname;
 	Room.findAll({
@@ -11,18 +13,36 @@ router.get("/search", async (req, res) => {
 			{
 				model: Book,
 				where: {
-					name: bookName,
+					name: { [Op.like]: `%${bookName}%` },
 				},
+				attribute: [],
 			},
 		],
 	})
 		.then((rooms) => {
-			console.log(rooms);
 			res.json(rooms);
 		})
 		.catch((err) => {
 			console.log(err);
 			res.json({ message: "검색 실패", data: [] });
+		});
+});
+
+router.route("/:id").get((req, res) => {
+	Room.findOne({
+		where: { id: req.params.id },
+		include: [
+			{
+				model: Book,
+			},
+		],
+	})
+		.then((room) => {
+			res.json({ message: "방 조회 성공", data: room });
+		})
+		.catch((err) => {
+			console.log(err);
+			res.json({ message: "방 조회 실패", data: {} });
 		});
 });
 
