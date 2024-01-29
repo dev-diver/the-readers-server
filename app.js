@@ -5,8 +5,9 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var cors = require("cors");
 
-var reactRouter = require("./routes/react");
+var authRouter = require("./routes/auth");
 var apiRouter = require("./routes/api");
+var reactRouter = require("./routes/react");
 
 var { sequelize } = require("./models");
 
@@ -32,7 +33,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use("/src", express.static("public"));
 app.use("/", express.static(path.join(__dirname, "public")));
-
+app.use("/auth", authRouter);
 app.use("/api", apiRouter);
 app.use("*", reactRouter);
 
