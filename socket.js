@@ -29,6 +29,7 @@ module.exports = (server) => {
 			const pointerData = {
 				id: socket.id,
 				color: colors[clientId], // 색상 추가
+				page: data.page,
 				x: data.x,
 				y: data.y,
 			};

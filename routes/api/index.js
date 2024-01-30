@@ -1,7 +1,6 @@
 var express = require("express");
 var router = express.Router();
-
-const userRouter = require("../../models/user");
+const userRouter = require("./user");
 
 var highlightsRouter = require("./highlights");
 var booksRouter = require("./books");

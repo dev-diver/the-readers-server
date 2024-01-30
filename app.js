@@ -4,9 +4,14 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var cors = require("cors");
+var session = require("express-session");
+var dotenv = require("dotenv");
 
+dotenv.config();
 var reactRouter = require("./routes/react");
+
 var apiRouter = require("./routes/api");
+var authRouter = require("./routes/auth");
 
 var { sequelize } = require("./models");
 
@@ -32,8 +37,22 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use("/src", express.static("public"));
 app.use("/", express.static(path.join(__dirname, "public")));
+app.use("/auth", authRouter);
+app.use("/img", express.static(path.join(__dirname, "uploads")));
+app.use(
+	session({
+		resave: false,
+		saveUninitialized: false,
+		secret: process.env.COOKIE_SECRET,
+		cookie: {
+			httpOnly: true,
+			secure: false,
+		},
+	})
+);
 
 app.use("/api", apiRouter);
+app.use("/auth", authRouter);
 app.use("*", reactRouter);
 
 // catch 404 and forward to error handler

@@ -5,7 +5,6 @@ const Room = require("../../models/room");
 const Book = require("../../models/book");
 
 //rooms
-
 router.get("/search", async (req, res) => {
 	const bookName = req.query.bookname;
 	Room.findAll({

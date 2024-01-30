@@ -8,6 +8,7 @@ const initUserModel = (sequelize, DataTypes) => {
 			email: {
 				type: DataTypes.STRING(40), //40
 				allowNull: true,
+				unique: true,
 			},
 			nick: {
 				type: DataTypes.STRING(15), //15
@@ -52,6 +53,8 @@ const initUserModel = (sequelize, DataTypes) => {
 
 		User.belongsToMany(models.Book, { through: "User_Book" });
 		User.belongsToMany(models.Room, { through: "Room_User" });
+
+		User.belongsToMany(models.Highlight, { through: "User_Highlight" });
 	};
 
 	return User;
