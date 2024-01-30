@@ -5,7 +5,18 @@ const initRoomModel = (sequelize, DataTypes) => {
 	const Room = sequelize.define(
 		"Room",
 		{
-			title: DataTypes.STRING,
+			title: {
+				type: DataTypes.STRING(40),
+				allowNull: true,
+			},
+			usermax: {
+				type: DataTypes.INTEGER,
+				allowNull: false,
+			},
+			bookFile: {
+				type: DataTypes.STRING(40),
+				allowNull: true,
+			},
 		},
 		{
 			sequelize,
@@ -15,7 +26,7 @@ const initRoomModel = (sequelize, DataTypes) => {
 			charset: "utf8",
 			collate: "utf8_general_ci",
 		}
-	);
+	); // Add closing parenthesis here
 
 	Room.associate = (models) => {
 		Room.belongsToMany(models.Book, { through: "Room_Book" });
