@@ -8,7 +8,6 @@ const initUserModel = (sequelize, DataTypes) => {
 			email: {
 				type: DataTypes.STRING(40), //40
 				allowNull: true,
-				primaryKey: true,
 			},
 			nick: {
 				type: DataTypes.STRING(15), //15
@@ -30,7 +29,7 @@ const initUserModel = (sequelize, DataTypes) => {
 		},
 		{
 			sequelize,
-			//timestamps: true,
+			timestamps: false,
 			underscored: false,
 			paranoid: true,
 			charset: "utf8",

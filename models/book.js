@@ -16,7 +16,7 @@ const initBookModel = (sequelize, DataTypes) => {
 		},
 		{
 			sequelize,
-			// timestamps: true,
+			timestamps: false,
 			underscored: false,
 			paranoid: true,
 			charset: "utf8",
