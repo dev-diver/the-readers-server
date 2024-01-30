@@ -4,6 +4,10 @@ const router = express.Router();
 // Load User model
 const User = require("../models/user");
 
+router.get("/", (req, res) => {
+  res.send("auth test");
+});
+
 //  /signup 으로 넘어오는 id, 비밀번호를 sequelize를 이용해 DB에 저장
 router.post("/signup", (req, res) => {
 	console.log("req.body",req.body);
