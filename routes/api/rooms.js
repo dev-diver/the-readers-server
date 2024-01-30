@@ -9,7 +9,7 @@ router.get("/search", async (req, res) => {
 	const bookName = req.query.bookname;
 	Room.findAll({
 		where: {
-			bookFile: { [Op.like]: `%${bookName}%` }, // Room 모델의 bookFile 필드 검색
+			title: { [Op.like]: `%${bookName}%` }, // Room 모델의 bookFile 필드 검색
 		},
 	})
 		.then((rooms) => {
