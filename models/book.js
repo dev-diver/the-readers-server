@@ -16,7 +16,7 @@ const initBookModel = (sequelize, DataTypes) => {
 		},
 		{
 			sequelize,
-			// timestamps: true,
+			timestamps: false,
 			underscored: false,
 			paranoid: true,
 			charset: "utf8",
@@ -27,6 +27,8 @@ const initBookModel = (sequelize, DataTypes) => {
 	Book.associate = (models) => {
 		Book.belongsToMany(models.Room, { through: "Room_Book" });
 		Book.belongsToMany(models.User, { through: "User_Book" });
+
+		Book.hasMany(models.Highlight, { foreignKey: "bookId", sourceKey: "id" });
 	};
 
 	return Book;
