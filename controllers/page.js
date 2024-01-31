@@ -1,4 +1,4 @@
-const { User, Post, Hashtag } = require("@models");
+const { User, Post, Hashtag } = require("../models");
 exports.renderProfile = (req, res) => {
 	res.render("profile", { title: "내 정보" });
 };

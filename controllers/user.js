@@ -1,4 +1,4 @@
-const User = require("@models/user");
+const User = require("../models/user");
 exports.follow = async (req, res, next) => {
 	try {
 		const user = await User.findOne({ where: { id: req.user.id } });

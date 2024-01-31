@@ -13,10 +13,6 @@ const initRoomModel = (sequelize, DataTypes) => {
 				type: DataTypes.INTEGER,
 				allowNull: false,
 			},
-			bookFile: {
-				type: DataTypes.STRING(40),
-				allowNull: true,
-			},
 		},
 		{
 			sequelize,
