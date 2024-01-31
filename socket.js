@@ -52,7 +52,7 @@ module.exports = (server) => {
 		//pdf viewer
 		socket.on("attention", (data) => {
 			console.log(data);
-			io("attention", data);
+			io.emit("attention", data);
 		});
 
 		socket.on("attention", (data) => {
