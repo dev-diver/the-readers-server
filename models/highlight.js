@@ -21,11 +21,11 @@ const initHighlightModel = (sequelize, DataTypes) => {
 				allowNull: false,
 			},
 			startContainer: {
-				type: DataTypes.STRING,
+				type: DataTypes.INTEGER,
 				allowNull: false,
 			},
 			endContainer: {
-				type: DataTypes.STRING,
+				type: DataTypes.INTEGER,
 				allowNull: false,
 			},
 			startOffset: {
@@ -64,6 +64,7 @@ const initHighlightModel = (sequelize, DataTypes) => {
 	// 	.catch((error) => {
 	// 		console.error("Error creating Highlight table", error);
 	// 	});
+	// Highlight.sync({ alter: true });
 
 	return Highlight;
 };
