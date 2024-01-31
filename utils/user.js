@@ -1,8 +1,8 @@
 const users = [];
 
 // Join user to chat
-const userJoin = (id, username, room, host, presenter) => {
-	const user = { id, username, room, host, presenter };
+const userJoin = (id, roomId, bookId, userId, userName, host, presenter) => {
+	const user = { id, roomId, bookId, userId, userName, host, presenter };
 
 	users.push(user);
 	return user;
@@ -10,17 +10,18 @@ const userJoin = (id, username, room, host, presenter) => {
 // User leaves chat
 const userLeave = (id) => {
 	const index = users.findIndex((user) => user.id === id);
-
+	console.log("userLeave index:", index);
 	if (index !== -1) {
-		return users.splice(index, 1)[0];
+		const result = users.splice(index, 1)[0];
+		return result;
 	}
 };
 
 //get users
-const getUsers = (room) => {
+const getUsers = (roomId) => {
 	const RoomUsers = [];
 	users.map((user) => {
-		if (user.room == room) {
+		if (user.roomId == roomId) {
 			RoomUsers.push(user);
 		}
 	});
