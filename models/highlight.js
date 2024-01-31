@@ -57,13 +57,13 @@ const initHighlightModel = (sequelize, DataTypes) => {
 		Highlight.belongsToMany(models.User, { through: "User_Highlight" });
 	};
 
-	Highlight.sync({ force: true })
-		.then(() => {
-			console.log("Highlight table created");
-		})
-		.catch((error) => {
-			console.error("Error creating Highlight table", error);
-		});
+	// Highlight.sync({ force: true })
+	// 	.then(() => {
+	// 		console.log("Highlight table created");
+	// 	})
+	// 	.catch((error) => {
+	// 		console.error("Error creating Highlight table", error);
+	// 	});
 
 	return Highlight;
 };
