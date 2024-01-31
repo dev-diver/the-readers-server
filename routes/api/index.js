@@ -8,6 +8,7 @@ var booksRouter = require("./books");
 var storageRouter = require("./storage");
 var roomRouter = require("./rooms");
 
+//api
 router.use("/user", userRouter);
 router.use("/highlights", highlightsRouter);
 router.use("/drawings", drawingsRouter);

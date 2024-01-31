@@ -28,6 +28,8 @@ const initRoomModel = (sequelize, DataTypes) => {
 		Room.belongsToMany(models.Book, { through: "Room_Book" });
 		Room.belongsToMany(models.User, { through: "Room_User" });
 	};
+	// Room 테이블 초기화
+	// Room.sync({ alter: true });
 
 	return Room;
 };
