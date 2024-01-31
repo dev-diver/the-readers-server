@@ -9,11 +9,13 @@ router.get("/", function (req, res, next) {
 });
 
 var highlightsRouter = require("./highlights");
+var drawingsRouter = require("./drawings");
 var booksRouter = require("./books");
 var storageRouter = require("./storage");
 var roomRouter = require("./rooms");
 
 router.use("/highlights", highlightsRouter);
+router.use("/drawings", drawingsRouter);
 router.use("/books", booksRouter);
 router.use("/rooms", roomRouter);
 router.use("/storage", storageRouter);
