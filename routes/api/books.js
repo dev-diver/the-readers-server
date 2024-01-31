@@ -21,24 +21,40 @@ router.route("/:id").get((req, res) => {
 		});
 });
 
-router.route("/").get((req, res) => {
-	const bookname = req.query.bookname;
+router
+	.route("/")
+	.get((req, res) => {
+		//bookname으로 검색
+		const bookname = req.query.bookname;
 
-	Book.findAll({
-		where: {
-			name: {
-				[Op.like]: `%${bookname}%`,
+		Book.findAll({
+			where: {
+				name: {
+					[Op.like]: `%${bookname}%`,
+				},
 			},
-		},
-	})
-		.then((books) => {
-			console.log(books);
-			res.json({ message: "검색 성공", data: books });
 		})
-		.catch((err) => {
-			console.log(err);
-			res.status(500).json({ message: "검색 실패", data: [] });
-		});
-});
+			.then((books) => {
+				console.log(books);
+				res.json({ message: "검색 성공", data: books });
+			})
+			.catch((err) => {
+				console.log(err);
+				res.status(500).json({ message: "검색 실패", data: [] });
+			});
+	})
+	.post((req, res) => {
+		const { name, author, publisher, image } = req.body;
+		Book.create({
+			name: name,
+		})
+			.then((book) => {
+				res.json({ message: "생성 성공", data: book });
+			})
+			.catch((err) => {
+				console.log(err);
+				res.status(500).json({ message: "생성 실패", data: null });
+			});
+	});
 
 module.exports = router;
