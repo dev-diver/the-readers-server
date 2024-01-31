@@ -88,8 +88,7 @@ module.exports = (server) => {
 		});
 
 		socket.on("drawing", (data) => {
-			imageUrl = data;
-			socket.broadcast.to(userRoom).emit("canvasImage", imageUrl);
+			socket.broadcast.to(userRoom).emit("canvasImage", data);
 		});
 	});
 	return io;
