@@ -22,6 +22,17 @@ module.exports = (server) => {
 		socket.on("disconnect", () => {
 			console.log("User disconnected");
 			clientCounter--; // 추가 확인 (진태)
+
+			const userLeaves = userLeave(socket.id);
+			const roomUsers = getUsers(userRoom);
+			console.log("roomUsers:", roomUsers);
+
+			if (userLeaves) {
+				io.to(userLeaves.roomId).emit("message", {
+					message: `${userLeaves.username} left the chat`,
+				});
+				io.to(userLeaves.roomId).emit("users", roomUsers);
+			}
 		});
 
 		//pointer
@@ -50,29 +61,34 @@ module.exports = (server) => {
 
 		// drawing canvas
 		let imageUrl, userRoom;
-		socket.on("user-joined", (data) => {
-			console.log("current user data: ", data);
-			const { roomId, userId, userName, host, presenter } = data;
-			userRoom = roomId;
-			const user = userJoin(socket.id, userName, roomId, host, presenter);
-			const roomUsers = getUsers(user.room);
-			console.log("user.room??", user.room);
-			socket.join(user.room);
-			socket.emit("message", {
-				message: "Welcome to ChatRoom",
-			});
-			socket.broadcast.to(user.room).emit("message", {
-				message: `${user.username} has joined`,
-			});
+		socket.on("user-joined", (userdata) => {
+			if (userdata.userName) {
+				console.log("***********user-joined***********");
+				console.log("roomId:", userdata.roomId);
+				console.log("bookId:", userdata.bookId);
+				console.log("userId:", userdata.userId);
+				console.log("userName:", userdata.userName);
+				console.log("");
 
-			io.to(user.room).emit("users", roomUsers);
-			io.to(user.room).emit("canvasImage", imageUrl);
+				const { roomId, bookId, userId, userName, host, presenter } = userdata;
+				userRoom = roomId;
+				const user = userJoin(socket.id, roomId, bookId, userId, userName, host, presenter);
+				const roomUsers = getUsers(user.roomId);
+				socket.join(user.roomId);
+				socket.broadcast.to(user.roomId).emit("message", {
+					message: "Welcome to ChatRoom",
+				});
+				socket.broadcast.to(user.roomId).emit("message", {
+					message: `${user.userName} has joined`,
+				});
+
+				io.to(user.roomId).emit("users", roomUsers);
+				io.to(user.roomId).emit("canvasImage", imageUrl);
+			}
 		});
 
 		socket.on("drawing", (data) => {
 			imageUrl = data;
-			console.log("userRoom***:", userRoom);
-
 			socket.broadcast.to(userRoom).emit("canvasImage", imageUrl);
 		});
 	});
