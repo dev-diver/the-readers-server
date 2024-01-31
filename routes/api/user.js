@@ -32,6 +32,5 @@ router
 				console.log(err);
 			});
 	});
-// POST /user/:id/follow
-router.post("/:id/follow", isLoggedIn, follow);
+
 module.exports = router;

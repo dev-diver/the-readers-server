@@ -3,6 +3,8 @@ public/
 uploads/
 .env
 
+.DS_Store
+
 sql_docker/data
 sql_docker/initdb.d
 package-lock.json

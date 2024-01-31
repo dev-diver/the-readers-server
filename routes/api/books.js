@@ -21,7 +21,7 @@ router.route("/:id").get((req, res) => {
 		});
 });
 
-router.get("/search", (req, res) => {
+router.route("/").get((req, res) => {
 	const bookname = req.query.bookname;
 
 	Book.findAll({
@@ -37,7 +37,7 @@ router.get("/search", (req, res) => {
 		})
 		.catch((err) => {
 			console.log(err);
-			res.json({ message: "검색 실패", data: [] });
+			res.status(500).json({ message: "검색 실패", data: [] });
 		});
 });
 
