@@ -3,12 +3,14 @@ var router = express.Router();
 const userRouter = require("./user");
 
 var highlightsRouter = require("./highlights");
+var drawingsRouter = require("./drawings");
 var booksRouter = require("./books");
 var storageRouter = require("./storage");
 var roomRouter = require("./rooms");
 
 router.use("/user", userRouter);
 router.use("/highlights", highlightsRouter);
+router.use("/drawings", drawingsRouter);
 router.use("/books", booksRouter);
 router.use("/rooms", roomRouter);
 router.use("/storage", storageRouter);

@@ -1,4 +1,5 @@
 const { Server } = require("socket.io");
+const { userJoin, getUsers, userLeave } = require("./utils/user");
 
 module.exports = (server) => {
 	const io = new Server(server, {
@@ -29,6 +30,7 @@ module.exports = (server) => {
 			const pointerData = {
 				id: socket.id,
 				color: colors[clientId], // 색상 추가
+
 				page: data.page,
 				x: data.x,
 				y: data.y,
@@ -44,6 +46,34 @@ module.exports = (server) => {
 
 		socket.on("attention", (data) => {
 			socket.broadcast.emit(data);
+		});
+
+		// drawing canvas
+		let imageUrl, userRoom;
+		socket.on("user-joined", (data) => {
+			console.log("current user data: ", data);
+			const { roomId, userId, userName, host, presenter } = data;
+			userRoom = roomId;
+			const user = userJoin(socket.id, userName, roomId, host, presenter);
+			const roomUsers = getUsers(user.room);
+			console.log("user.room??", user.room);
+			socket.join(user.room);
+			socket.emit("message", {
+				message: "Welcome to ChatRoom",
+			});
+			socket.broadcast.to(user.room).emit("message", {
+				message: `${user.username} has joined`,
+			});
+
+			io.to(user.room).emit("users", roomUsers);
+			io.to(user.room).emit("canvasImage", imageUrl);
+		});
+
+		socket.on("drawing", (data) => {
+			imageUrl = data;
+			console.log("userRoom***:", userRoom);
+
+			socket.broadcast.to(userRoom).emit("canvasImage", imageUrl);
 		});
 	});
 	return io;
