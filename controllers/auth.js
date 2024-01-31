@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const passport = require("passport");
-const User = require("@models/");
+const User = require("../models/");
 //회원가입 controller
 exports.signup = async (req, res, next) => {
 	const { email, nick, password } = req.body;
@@ -42,6 +42,7 @@ exports.login = (req, res, next) => {
 		});
 	})(req, res, next); // 미들웨어 내의 미들웨어에는 (req, res, next)를 붙임.
 };
+
 // 로그아웃 controller
 // req.logout 객체는 req.user 객체와 req.session 객체를 제거함.
 // 세션 정보를 지운 후, 콜백 함수가 실행

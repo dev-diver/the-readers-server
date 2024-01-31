@@ -1,12 +1,6 @@
 var express = require("express");
 var router = express.Router();
-
-const userRouter = require("../../models/user");
-router.use("/user", userRouter);
-
-router.get("/", function (req, res, next) {
-	res.send("없는 api");
-});
+const userRouter = require("./user");
 
 var highlightsRouter = require("./highlights");
 var drawingsRouter = require("./drawings");
@@ -14,12 +8,16 @@ var booksRouter = require("./books");
 var storageRouter = require("./storage");
 var roomRouter = require("./rooms");
 
+router.use("/user", userRouter);
 router.use("/highlights", highlightsRouter);
 router.use("/drawings", drawingsRouter);
 router.use("/books", booksRouter);
 router.use("/rooms", roomRouter);
 router.use("/storage", storageRouter);
 
+router.get("/", function (req, res, next) {
+	res.send("없는 api");
+});
 // app.use(function(req, res, next) {
 //   next(createError(404)); //책 속의 한줄 넣으면 어떨지?
 // });

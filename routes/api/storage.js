@@ -49,6 +49,7 @@ router.route("/").post(upload.single("file"), async (req, res, next) => {
 			console.error(err);
 			res.status(500).send({ error: "file upload failed" });
 		});
+	// 시퀼라이저에 넣는 로직 구현 (방에 들어가서 필요)
 });
 
 module.exports = router;

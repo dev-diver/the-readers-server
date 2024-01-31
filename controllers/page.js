@@ -1,10 +1,12 @@
-const { User, Post, Hashtag } = require("@models");
+const { User, Post, Hashtag } = require("../models");
 exports.renderProfile = (req, res) => {
 	res.render("profile", { title: "내 정보" });
 };
+
 exports.renderSignup = (req, res) => {
 	res.render("signup", { title: "회원가입" });
 };
+
 exports.renderMain = async (req, res, next) => {
 	try {
 		const posts = await Post.findAll({
