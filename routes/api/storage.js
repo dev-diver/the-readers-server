@@ -5,6 +5,31 @@ const upload = multer({ dest: "uploads/" });
 const fs = require("fs");
 const { s3Upload, BUCKET_NAME } = require("../../config/aws");
 
+router.route("/drawings").post(upload.single("file"), async (req, res, next) => {
+	const file = req.file;
+	if (file) {
+		console.log("File received: ", file);
+		const uploadParams = {
+			Bucket: BUCKET_NAME,
+			Key: `drawings/${file.originalname}`,
+			Body: fs.createReadStream(file.path),
+		};
+		console.log("uploadParams:", uploadParams);
+		s3Upload(uploadParams)
+			.promise()
+			.then((data) => {
+				console.log(data);
+				res.json({ url: data.Location });
+			})
+			.catch((err) => {
+				console.error(err);
+				res.status(500).send({ error: "file upload failed" });
+			});
+	} else {
+		res.status(400).send("No file received");
+	}
+});
+
 router.route("/").post(upload.single("file"), async (req, res, next) => {
 	const file = req.file;
 	console.log(file.originalname, file.path);

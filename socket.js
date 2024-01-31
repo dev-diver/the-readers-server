@@ -1,4 +1,5 @@
 const { Server } = require("socket.io");
+const { userJoin, getUsers, userLeave } = require("./utils/user");
 
 module.exports = (server) => {
 	const io = new Server(server, {
@@ -21,6 +22,17 @@ module.exports = (server) => {
 		socket.on("disconnect", () => {
 			console.log("User disconnected");
 			clientCounter--; // 추가 확인 (진태)
+
+			const userLeaves = userLeave(socket.id);
+			const roomUsers = getUsers(userRoom);
+			console.log("roomUsers:", roomUsers);
+
+			if (userLeaves) {
+				io.to(userLeaves.roomId).emit("message", {
+					message: `${userLeaves.username} left the chat`,
+				});
+				io.to(userLeaves.roomId).emit("users", roomUsers);
+			}
 		});
 
 		//pointer
@@ -29,6 +41,7 @@ module.exports = (server) => {
 			const pointerData = {
 				id: socket.id,
 				color: colors[clientId], // 색상 추가
+
 				page: data.page,
 				x: data.x,
 				y: data.y,
@@ -44,6 +57,39 @@ module.exports = (server) => {
 
 		socket.on("attention", (data) => {
 			socket.broadcast.emit(data);
+		});
+
+		// drawing canvas
+		let imageUrl, userRoom;
+		socket.on("user-joined", (userdata) => {
+			if (userdata.userName) {
+				console.log("***********user-joined***********");
+				console.log("roomId:", userdata.roomId);
+				console.log("bookId:", userdata.bookId);
+				console.log("userId:", userdata.userId);
+				console.log("userName:", userdata.userName);
+				console.log("");
+
+				const { roomId, bookId, userId, userName, host, presenter } = userdata;
+				userRoom = roomId;
+				const user = userJoin(socket.id, roomId, bookId, userId, userName, host, presenter);
+				const roomUsers = getUsers(user.roomId);
+				socket.join(user.roomId);
+				socket.broadcast.to(user.roomId).emit("message", {
+					message: "Welcome to ChatRoom",
+				});
+				socket.broadcast.to(user.roomId).emit("message", {
+					message: `${user.userName} has joined`,
+				});
+
+				io.to(user.roomId).emit("users", roomUsers);
+				io.to(user.roomId).emit("canvasImage", imageUrl);
+			}
+		});
+
+		socket.on("drawing", (data) => {
+			imageUrl = data;
+			socket.broadcast.to(userRoom).emit("canvasImage", imageUrl);
 		});
 	});
 	return io;
