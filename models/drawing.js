@@ -4,10 +4,6 @@ const initDrawingModel = (sequelize, DataTypes) => {
 	const Drawing = sequelize.define(
 		"Drawing",
 		{
-			num: {
-				type: DataTypes.INTEGER,
-				allowNull: true,
-			},
 			imageUrl: {
 				type: DataTypes.STRING,
 				allowNull: false,
@@ -42,7 +38,7 @@ const initDrawingModel = (sequelize, DataTypes) => {
 
 	Drawing.associate = (models) => {
 		Drawing.belongsTo(models.Book, { foreignKey: "bookId", targetKey: "id" });
-		Drawing.belongsTo(models.Room, { foreignKey: "bookId", targetKey: "id" });
+		Drawing.belongsTo(models.Room, { foreignKey: "roomId", targetKey: "id" });
 		Drawing.belongsToMany(models.User, { through: "User_Drawing" });
 	};
 

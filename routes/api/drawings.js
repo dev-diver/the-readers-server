@@ -4,9 +4,7 @@ const { Op } = require("sequelize");
 const Drawing = require("../../models/drawing");
 
 router.get("/book/:bookId/page/:pageNum", (req, res) => {
-	const bookId = req.params.bookId;
-	// roomId도 추후 추가?
-	const pageNum = req.params.pageNum;
+	const { bookId, pageNum } = req.params;
 	Drawing.findAll({
 		where: { bookId: bookId, roomId: roomId, pageNum: pageNum },
 	})
@@ -37,8 +35,7 @@ router.post("/", (req, res) => {
 	console.log(req.body);
 	Drawing.create(req.body)
 		.then((response) => {
-			console.log(response);
-			res.send("Drawing saved");
+			res.json({ message: "Drawing saved", data: response });
 		})
 		.catch((err) => {
 			console.err(err);
