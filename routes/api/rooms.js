@@ -4,7 +4,7 @@ const { Op } = require("sequelize");
 const Room = require("../../models/room");
 const Book = require("../../models/book");
 
-//rooms
+// CREATE (room에 book 추가)
 router.route("/:roomId/books/:bookId").post((req, res) => {
 	const { roomId, bookId } = req.params;
 	console.log(roomId, bookId);
@@ -22,25 +22,71 @@ router.route("/:roomId/books/:bookId").post((req, res) => {
 			res.status(500).json({ message: "책 추가 실패", data: {} });
 		});
 });
-
-router.route("/:id").get((req, res) => {
-	Room.findOne({
-		where: { id: req.params.id },
-		include: [
-			{
-				model: Book,
-			},
-		],
-	})
-		.then((room) => {
-			res.json({ message: "방 조회 성공", data: room });
+// READ (room에서 book 조회)
+router
+	.route("/:id")
+	.get((req, res) => {
+		Room.findOne({
+			where: { id: req.params.id },
+			include: [
+				{
+					model: Book,
+				},
+			],
 		})
-		.catch((err) => {
-			console.log(err);
-			res.status(500).json({ message: "방 조회 실패", data: {} });
-		});
-});
+			.then((room) => {
+				if (!room) {
+					return res.status(404).json({ message: "방을 찾을 수 없습니다.", data: {} });
+				}
+				res.json({ message: "방 조회 성공", data: room });
+			})
+			.catch((err) => {
+				console.log(err);
+				res.status(500).json({ message: "방 조회 실패", data: {} });
+			});
+	})
+	// UPDATE (room 수정)
+	.put((req, res) => {
+		const { roomName, maxParticipants } = req.body;
+		Room.findByPk(req.params.id)
+			.then((room) => {
+				if (room) {
+					return room.update({
+						title: roomName,
+						usermax: maxParticipants,
+					});
+				} else {
+					res.status(404).json({ message: "방을 찾을 수 없습니다." });
+				}
+			})
+			.then((updateRoom) => {
+				res.json({ message: "방 업데이트 성공", data: updateRoom });
+			})
+			.catch((err) => {
+				console.log(err);
+				res.status(500).json({ message: "방 업데이트 실패", data: {} });
+			});
+	})
+	// DELETE (room 삭제)
+	.delete((req, res) => {
+		Room.findByPk(req.params.id)
+			.then((room) => {
+				if (room) {
+					return room.destroy();
+				} else {
+					res.status(404).json({ message: "방을 찾을 수 없습니다." });
+				}
+			})
+			.then(() => {
+				res.json({ message: "방 삭제 성공", data: {} });
+			})
+			.catch((err) => {
+				console.log(err);
+				res.status(500).json({ message: "방 삭제 실패", data: {} });
+			});
+	});
 
+// READ (room 조회)
 router
 	.route("/")
 	.get(async (req, res) => {
@@ -68,6 +114,7 @@ router
 			res.status(500).json({ message: "방 조회 실패", data: [] });
 		}
 	})
+	// Create (room 생성)
 	.post((req, res) => {
 		// 데이터 추출
 		const { roomName, maxParticipants, bookFile } = req.body;
