@@ -1,5 +1,5 @@
 const { Server } = require("socket.io");
-const { userJoin, getUsers, userLeave } = require("./utils/user");
+const { userJoin, userChange, getUsers, userLeave } = require("./utils/user");
 
 module.exports = (server) => {
 	const io = new Server(server, {
@@ -63,16 +63,9 @@ module.exports = (server) => {
 		let imageUrl, userRoom;
 		socket.on("user-joined", (userdata) => {
 			if (userdata.userName) {
-				console.log("***********user-joined***********");
-				console.log("roomId:", userdata.roomId);
-				console.log("bookId:", userdata.bookId);
-				console.log("userId:", userdata.userId);
-				console.log("userName:", userdata.userName);
-				console.log("");
-
-				const { roomId, bookId, userId, userName, host, presenter } = userdata;
+				const { roomId, bookId, memberId, userId, userName, host, presenter } = userdata;
 				userRoom = roomId;
-				const user = userJoin(socket.id, roomId, bookId, userId, userName, host, presenter);
+				const user = userJoin(socket.id, roomId, bookId, memberId, userId, userName, host, presenter);
 				const roomUsers = getUsers(user.roomId);
 				socket.join(user.roomId);
 				socket.broadcast.to(user.roomId).emit("message", {
@@ -84,6 +77,14 @@ module.exports = (server) => {
 
 				io.to(user.roomId).emit("users", roomUsers);
 				io.to(user.roomId).emit("canvasImage", imageUrl);
+			}
+		});
+
+		socket.on("user-changed", (userdata) => {
+			if (userdata.userName) {
+				userChange(userdata);
+				const roomUsers = getUsers(userdata.roomId);
+				io.to(userdata.roomId).emit("users", roomUsers);
 			}
 		});
 

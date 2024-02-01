@@ -2,7 +2,48 @@ var express = require("express");
 var router = express.Router();
 const { Op } = require("sequelize");
 const Book = require("../../models/book");
+const User = require("../../models/user");
 const Highlight = require("../../models/highlight");
+
+router.get("/user/:userId/book/:bookId/page/:pageNum", (req, res) => {
+	const { userId, bookId, pageNum } = req.params;
+	Highlight.findAll({
+		include: [
+			{
+				model: User,
+				where: { id: userId },
+				through: { attributes: [] }, // 연결 테이블의 속성을 제외하고자 할 때
+			},
+		],
+		where: { bookId: bookId },
+	})
+		.then((highlights) => {
+			console.log(highlights);
+			res.json(highlights);
+		})
+		.catch((err) => {
+			console.log(err);
+			res.status(500).json({ message: "검색 실패", data: [] });
+		});
+});
+
+router.route("/user/:userId").post((req, res) => {
+	const userId = req.params.userId;
+	const highlights = req.body;
+	Highlight.create(highlights)
+		.then((highlight) => {
+			return User.findByPk(userId).then((user) => {
+				return highlight.addUser(user);
+			});
+		})
+		.then((result) => {
+			res.json({ message: "하이라이트 성공", data: result });
+		})
+		.catch((err) => {
+			console.error(err);
+			res.status(500).json({ message: "하이라이트 쓰기 실패", data: null });
+		});
+});
 
 router.get("/book/:bookId/page/:pageNum", (req, res) => {
 	const bookId = req.params.bookId;
