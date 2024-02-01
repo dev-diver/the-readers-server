@@ -11,7 +11,6 @@ const Book = require("../../models/book");
 // CREATE (room에 book 추가)
 router.route("/:roomId/books/:bookId").post((req, res) => {
 	const { roomId, bookId } = req.params;
-	console.log(roomId, bookId);
 	Room.findByPk(roomId)
 		.then((room) => {
 			return Book.findByPk(bookId).then((book) => {
@@ -22,7 +21,7 @@ router.route("/:roomId/books/:bookId").post((req, res) => {
 			res.json({ message: "책 추가 성공", data: result });
 		})
 		.catch((err) => {
-			console.log(err);
+			console.error(err);
 			res.status(500).json({ message: "책 추가 실패", data: {} });
 		});
 });
@@ -41,7 +40,6 @@ router.route("/:roomId/books").post(upload.single("file"), async (req, res) => {
 	s3Upload(uploadParams)
 		.promise()
 		.then((data) => {
-			console.log(data);
 			return Book.create({
 				name: fileName,
 				url: data.Location,
@@ -80,7 +78,7 @@ router
 				res.json({ message: "방 조회 성공", data: room });
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "방 조회 실패", data: {} });
 			});
 	})
@@ -102,7 +100,7 @@ router
 				res.json({ message: "방 업데이트 성공", data: updateRoom });
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "방 업데이트 실패", data: {} });
 			});
 	})
@@ -120,7 +118,7 @@ router
 				res.json({ message: "방 삭제 성공", data: {} });
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "방 삭제 실패", data: {} });
 			});
 	});
@@ -131,7 +129,6 @@ router
 	.get(async (req, res) => {
 		//검색어로 검색
 		const name = req.query.name;
-		console.log(name);
 		try {
 			const rooms1 = await Room.findAll({
 				where: {
@@ -150,7 +147,7 @@ router
 			const allRooms = [...rooms1, ...rooms2];
 			res.json({ message: "방 조회 성공", data: allRooms });
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 			res.status(500).json({ message: "방 조회 실패", data: [] });
 		}
 	})
@@ -158,7 +155,6 @@ router
 	.post((req, res) => {
 		// 데이터 추출
 		const { roomName, maxParticipants, bookFile } = req.body;
-		console.log(roomName, maxParticipants, bookFile);
 		//데이터 검증
 		if (!roomName || !maxParticipants) {
 			return res.json({ message: "데이터를 정확하게 추가하세요.", data: {} });
@@ -170,7 +166,7 @@ router
 				res.json({ message: "방 생성 성공", data: room });
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "방 생성 실패", data: {} });
 			});
 	});

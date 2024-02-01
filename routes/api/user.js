@@ -5,7 +5,6 @@ router
 	.route("/")
 	.get(async (req, res) => {
 		const nick = req.query.nick;
-		console.log(nick);
 		try {
 			const user = await User.findAll({
 				where: {
@@ -14,14 +13,13 @@ router
 			});
 			res.json({ message: "유저 조회 성공", data: user });
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 			res.status(500).json({ message: "유저 조회 실패", data: [] });
 		}
 	})
 	// Create (user 생성)
 	.post(async (req, res) => {
 		const { email, nick, password, provider, snsid } = req.body;
-		console.log(email, nick, password, provider, snsid);
 
 		// 이메일, 닉네임 중복 검사
 		const existingUser = await User.findOne({
@@ -39,7 +37,7 @@ router
 				res.json({ message: "회원가입 성공", data: user });
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "회원가입 실패", data: {} });
 			});
 	});
@@ -58,7 +56,7 @@ router
 				res.json({ message: "유저 조회 성공", data: user });
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "유저 조회 실패", data: {} });
 			});
 	})
@@ -81,12 +79,12 @@ router
 						res.json({ message: "유저 비밀번호 수정 성공", data: updateUser });
 					})
 					.catch((err) => {
-						console.log(err);
+						console.error(err);
 						res.status(500).json({ message: "유저 비밀번호 수정 실패", data: {} });
 					});
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "유저 조회 실패", data: {} });
 			});
 	})
@@ -104,12 +102,12 @@ router
 						res.json({ message: "유저 삭제 성공", data: {} });
 					})
 					.catch((err) => {
-						console.log(err);
+						console.error(err);
 						res.status(500).json({ message: "유저 삭제 실패", data: {} });
 					});
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "유저 조회 실패", data: {} });
 			});
 	});

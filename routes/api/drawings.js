@@ -12,7 +12,7 @@ router.get("/book/:bookId/page/:pageNum", (req, res) => {
 			res.json(drawings);
 		})
 		.catch((err) => {
-			console.log(err);
+			console.error(err);
 			res.json({ message: "검색 실패", data: [] });
 		});
 });
@@ -22,17 +22,15 @@ router.delete("/:id", async (req, res) => {
 		where: { id: req.params.id },
 	})
 		.then((response) => {
-			console.log(response);
 			res.send("Drawing deleted");
 		})
 		.catch((err) => {
-			console.log(err);
+			console.error(err);
 			res.json({ message: "삭제 실패", data: [] });
 		});
 });
 
 router.post("/", (req, res) => {
-	console.log(req.body);
 	Drawing.create(req.body)
 		.then((response) => {
 			res.json({ message: "Drawing saved", data: response });
