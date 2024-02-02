@@ -12,10 +12,6 @@ const initDrawingModel = (sequelize, DataTypes) => {
 				type: DataTypes.INTEGER,
 				allowNull: false,
 			},
-			roomId: {
-				type: DataTypes.INTEGER,
-				allowNull: false,
-			},
 			pageNum: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
@@ -35,10 +31,10 @@ const initDrawingModel = (sequelize, DataTypes) => {
 			],
 		}
 	);
-
+	// Drawing은 Book은 1 대 다 관계이고, User와는 다 대 다 관계임
+	// 하나의 Drawing은 하나의 책과 방에 속하고 또 여러 사용자에게 속할 수 있음
 	Drawing.associate = (models) => {
 		Drawing.belongsTo(models.Book, { foreignKey: "bookId", targetKey: "id" });
-		Drawing.belongsTo(models.Room, { foreignKey: "roomId", targetKey: "id" });
 		Drawing.belongsToMany(models.User, { through: "User_Drawing" });
 	};
 

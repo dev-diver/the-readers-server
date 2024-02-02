@@ -6,6 +6,10 @@ var logger = require("morgan");
 var cors = require("cors");
 var dotenv = require("dotenv");
 
+// 스웨거
+const swaggerjsdoc = require("swagger-jsdoc");
+const swaggerui = require("swagger-ui-express");
+
 dotenv.config();
 var reactRouter = require("./routes/react");
 
@@ -37,6 +41,31 @@ app.use(cookieParser());
 app.use("/src", express.static("public"));
 app.use("/", express.static(path.join(__dirname, "public")));
 app.use("/auth", authRouter);
+// 스웨거
+const options = {
+	definition: {
+		openapi: "3.0.0",
+		info: {
+			title: "theReaders 데이터 스키마 & API 명세서",
+			version: "1.0.0",
+			description: "2024.02.02. 김진태 작성",
+			contact: {
+				name: "김진태",
+				email: "realbig4119@gmail.com",
+			},
+		},
+		servers: [
+			{
+				url: "http://localhost:3000/",
+			},
+		],
+	},
+	apis: ["./routes/api/*.js"],
+};
+
+const spacs = swaggerjsdoc(options);
+
+app.use("/api-docs", swaggerui.serve, swaggerui.setup(spacs));
 
 app.use("/api", apiRouter);
 app.use("/auth", authRouter);
