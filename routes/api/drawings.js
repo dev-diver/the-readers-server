@@ -6,7 +6,7 @@ const Drawing = require("../../models/drawing");
 router.get("/book/:bookId/page/:pageNum", (req, res) => {
 	const { bookId, pageNum } = req.params;
 	Drawing.findAll({
-		where: { bookId: bookId, roomId: roomId, pageNum: pageNum },
+		where: { bookId: bookId, pageNum: pageNum },
 	})
 		.then((drawings) => {
 			res.json(drawings);
