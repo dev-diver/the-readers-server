@@ -1,3 +1,228 @@
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Room:
+ *       type: object
+ *       required:
+ *         - id
+ *         - title
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: 방 고유 id
+ *         title:
+ *           type: string
+ *           description: 방 이름
+ *         usermax:
+ *           type: integer
+ *           description: 최대 참가자 수
+ */
+
+/**
+ * @swagger
+ * tags:
+ *   name: Room
+ *   description: 방 API 정리
+ * /api/rooms/{roomId}/books/{bookId}:
+ *   post:
+ *     tags: [Room]
+ *     summary: ID로 방에 책 추가
+ *     parameters:
+ *       - in: path
+ *         name: roomId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 방 ID
+ *       - in: path
+ *         name: bookId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 책 ID
+ *     responses:
+ *       200:
+ *         description: 책 추가 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Room'
+ *       500:
+ *         description: 서버 에러
+ *
+ * /api/rooms/{roomId}/books:
+ *   post:
+ *     tags: [Room]
+ *     summary: 파일 업로드로 방에 책 추가
+ *     parameters:
+ *       - in: path
+ *         name: roomId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 방의 고유 ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - file
+ *               - fileName
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: 업로드할 책 파일
+ *               fileName:
+ *                 type: string
+ *                 description: 책의 이름
+ *     responses:
+ *       200:
+ *         description: 책 파일 업로드 및 추가 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 책 추가 성공
+ *                 data:
+ *                   $ref: '#/components/schemas/Room'
+ *       400:
+ *         description: 책 파일 업로드 실패
+ *       500:
+ *         description: 서버 에러
+ *
+ * /api/rooms/{id}:
+ *   get:
+ *     tags: [Room]
+ *     summary: ID로 방 조회
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID로 방 조회
+ *     responses:
+ *       200:
+ *          description: 방 조회 성공
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Room'
+ *       404:
+ *         description: 방을 찾을 수 없습니다.
+ *       500:
+ *         description: 서버 에러
+ *
+ *   put:
+ *     tags: [Room]
+ *     summary: ID로 방을 찾고 수정
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID로 방을 찾고 수정
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Room'
+ *       description: 수정할 방의 정보
+ *     responses:
+ *       200:
+ *         description: 방 수정 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *              $ref: '#/components/schemas/Room'
+ *       404:
+ *         description: 방을 찾을 수 없습니다.
+ *       500:
+ *         description: 서버 에러
+ *   delete:
+ *     tags: [Room]
+ *     summary: ID로 방 삭제
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID로 방 삭제
+ *     responses:
+ *       200:
+ *         description: 방 삭제 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Room'
+ *       404:
+ *          description: 방을 찾을 수 없습니다.
+ *       500:
+ *         description: 서버 에러
+ *
+ * /api/rooms:
+ *   get:
+ *     tags: [Room]
+ *     summary: 방 이름으로 방 검색
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: 방 이름으로 방 검색
+ *     responses:
+ *       200:
+ *         description: 방 검색 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Room'
+ *       404:
+ *         description: 방을 찾을 수 없습니다.
+ *       500:
+ *         description: 서버 에러
+ *   post:
+ *     tags: [Room]
+ *     summary: 방 생성
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               roomName:
+ *                 type: string
+ *                 description: 방 이름
+ *               maxParticipants:
+ *                 type: integer
+ *                 description: 최대 참가자 수
+ *               bookFile:
+ *                 type: string
+ *                 description: 책 파일
+ *     responses:
+ *       200:
+ *         description: 방 생성 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Room'
+ *       500:
+ *         description: 방 생성 실패
+ */
+
 const express = require("express");
 const router = express.Router();
 const { Op } = require("sequelize");
@@ -85,6 +310,7 @@ router
 	// UPDATE (room 수정)
 	.put((req, res) => {
 		const { roomName, maxParticipants } = req.body;
+		console.log(roomName, maxParticipants);
 		Room.findByPk(req.params.id)
 			.then((room) => {
 				if (room) {
@@ -145,6 +371,9 @@ router
 				],
 			});
 			const allRooms = [...rooms1, ...rooms2];
+			if (allRooms.length === 0) {
+				return res.status(404).json({ message: "방을 찾을 수 없습니다.", data: [] });
+			}
 			res.json({ message: "방 조회 성공", data: allRooms });
 		} catch (err) {
 			console.error(err);
