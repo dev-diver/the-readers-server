@@ -372,7 +372,8 @@ router
 			});
 			const allRooms = [...rooms1, ...rooms2];
 			if (allRooms.length === 0) {
-				return res.status(404).json({ message: "방을 찾을 수 없습니다.", data: [] });
+				res.status(404).json({ message: "방을 찾을 수 없습니다.", data: [] });
+				return;
 			}
 			res.json({ message: "방 조회 성공", data: allRooms });
 		} catch (err) {

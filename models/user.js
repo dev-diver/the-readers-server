@@ -15,7 +15,11 @@ const initUserModel = (sequelize, DataTypes) => {
 				allowNull: false,
 			},
 			password: {
-				type: DataTypes.STRING(11), //11
+				type: DataTypes.STRING, //11
+				allowNull: true,
+			},
+			profileImg: {
+				type: DataTypes.STRING,
 				allowNull: true,
 			},
 			provider: {
@@ -56,6 +60,8 @@ const initUserModel = (sequelize, DataTypes) => {
 		User.belongsToMany(models.Highlight, { through: "User_Highlight" });
 		User.belongsToMany(models.Translation, { through: "User_Translation" });
 	};
+
+	// User.sync({ alter: true });
 
 	return User;
 };
