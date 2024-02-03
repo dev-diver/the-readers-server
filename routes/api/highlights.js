@@ -18,11 +18,10 @@ router.get("/user/:userId/book/:bookId/page/:pageNum", (req, res) => {
 		where: { bookId: bookId },
 	})
 		.then((highlights) => {
-			console.log(highlights);
 			res.json(highlights);
 		})
 		.catch((err) => {
-			console.log(err);
+			console.error(err);
 			res.status(500).json({ message: "검색 실패", data: [] });
 		});
 });
@@ -55,7 +54,7 @@ router.get("/book/:bookId/page/:pageNum", (req, res) => {
 			res.json(highlights);
 		})
 		.catch((err) => {
-			console.log(err);
+			console.error(err);
 			res.json({ message: "검색 실패", data: [] });
 		});
 });
@@ -74,7 +73,7 @@ router
 				res.json({ message: "Highlight 조회 성공", data: highlight });
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "Highlight 조회 실패", data: [] });
 			});
 	})
@@ -99,11 +98,10 @@ router
 			where: { id: req.params.id },
 		})
 			.then((response) => {
-				console.log(response);
 				res.send("Highlight deleted");
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.json({ message: "삭제 실패", data: [] });
 			});
 	});
@@ -124,11 +122,10 @@ router.route("/").post((req, res) => {
 	// })
 	Highlight.create(req.body)
 		.then((highlight) => {
-			console.log(highlight);
 			res.json({ message: "하이라이트 저장", data: highlight });
 		})
 		.catch((err) => {
-			console.log(err);
+			console.error(err);
 			res.status(500).json({ message: "업로드 실패", data: [] });
 		});
 });
@@ -136,7 +133,6 @@ router.route("/").post((req, res) => {
 // READ (전체 highlight 조회_우선 num으로 조회)
 router.route("/").get(async (req, res) => {
 	const num = req.query.num;
-	console.log(num);
 	try {
 		const highlight = await Highlight.findAll({
 			where: {
@@ -145,7 +141,7 @@ router.route("/").get(async (req, res) => {
 		});
 		res.json({ message: "Highlight 조회 성공", data: highlight });
 	} catch (err) {
-		console.log(err);
+		console.error(err);
 		res.status(500).json({ message: "Highlight 조회 실패", data: [] });
 	}
 });

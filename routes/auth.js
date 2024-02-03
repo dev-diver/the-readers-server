@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { UniqueConstraintError } = require("sequelize");
 
 // Load User model
 const User = require("../models/user");
@@ -10,16 +11,15 @@ router.get("/", (req, res) => {
 
 //  /signup 으로 넘어오는 id, 비밀번호를 sequelize를 이용해 DB에 저장
 router.post("/signup", (req, res) => {
-	console.log("req.body", req.body);
-	User.create({
-		nick: req.body.nick,
-		email: req.body.email,
-		password: req.body.password,
-	})
+	const user = ({ nick, email, password, profileImg } = req.body);
+	User.create(user)
 		.then((user) => res.status(201).json(user))
 		.catch((err) => {
-			console.log(err);
-			res.status(500).json(err);
+			if (err instanceof UniqueConstraintError) {
+				return res.status(409).json({ message: "이미 존재하는 이메일입니다.", data: null });
+			}
+			console.error(err);
+			res.status(500).json({ message: "알 수 없는 에러", data: null });
 		});
 });
 
@@ -31,41 +31,35 @@ function createToken() {
 }
 // /login 으로 넘어오는 id, 비밀번호를 sequelize를 이용해 DB에 저장
 router.post("/login", async (req, res) => {
-	try {
-		console.log("req.body.email", req.body.email);
-		console.log("req.body.password", req.body.password);
-		const user = await User.findOne({
-			where: {
-				email: req.body.email,
-				password: req.body.password,
-			},
-		});
-		console.log("________user", user);
-
-		if (!user) {
-			return res.status(404).json({ success: false });
-		} else {
-			var token = createToken();
-			console.log("token", token);
-			user.token = token;
-			await user.save();
-
-			res.cookie("=======user", token);
-			res.status(200).json({
-				success: true,
-				user: {
+	User.findOne({
+		where: {
+			email: req.body.email,
+			password: req.body.password,
+		},
+	})
+		.then((user) => {
+			if (!user) {
+				return res.status(404).json({ success: false });
+			} else {
+				var token = createToken();
+				let result = {
 					id: user.id,
-					email: user.email,
 					nick: user.nick,
-					password: user.password,
-					token: user.token,
-				},
-			});
-		}
-	} catch (err) {
-		console.log(err);
-		res.status(500).json(err);
-	}
+					email: user.email,
+					profileImg: user.profileImg,
+					token: token,
+				};
+				console.log(result);
+				res.status(200).json({
+					message: "로그인 성공",
+					data: result,
+				});
+			}
+		})
+		.catch((err) => {
+			console.error(err);
+			res.status(500).json({ message: "로그인 실패", data: null });
+		});
 });
 
 module.exports = router;

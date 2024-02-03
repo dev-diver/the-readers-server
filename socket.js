@@ -25,7 +25,7 @@ module.exports = (server) => {
 
 			const userLeaves = userLeave(socket.id);
 			const roomUsers = getUsers(userRoom);
-			console.log("roomUsers:", roomUsers);
+			// console.log("roomUsers:", roomUsers);
 
 			if (userLeaves) {
 				io.to(userLeaves.roomId).emit("message", {
@@ -59,7 +59,6 @@ module.exports = (server) => {
 
 		//pdf viewer
 		socket.on("attention", (data) => {
-			console.log(data);
 			io.emit("attention", data);
 		});
 
