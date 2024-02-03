@@ -27,7 +27,4 @@ db.Sequelize = Sequelize;
 // db.sequelize.sync({ alter: true }).then(() => {
 // 	console.log("DB 리셋 완료");
 // });
-// db.sequelize.sync({ force: true }).then(() => {
-// 	console.log("DB 리셋 완료");
-// });
 module.exports = db;
