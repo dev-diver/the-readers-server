@@ -69,7 +69,7 @@ module.exports = (server) => {
 
 		// drawing canvas
 		let imageUrl, userRoom;
-		socket.on("user-joined", (userdata) => {
+		socket.on("room-joined", (userdata) => {
 			if (userdata.userName) {
 				const { roomId, bookId, memberId, userId, userName, host, presenter } = userdata;
 				userRoom = roomId;
@@ -88,13 +88,13 @@ module.exports = (server) => {
 			}
 		});
 
-		socket.on("user-changed", (userdata) => {
-			if (userdata.userName) {
-				userChange(userdata);
-				const roomUsers = getUsers(userdata.roomId);
-				io.to(userdata.roomId).emit("users", roomUsers);
-			}
-		});
+		// socket.on("user-changed", (userdata) => {
+		// 	if (userdata.userName) {
+		// 		userChange(userdata);
+		// 		const roomUsers = getUsers(userdata.roomId);
+		// 		io.to(userdata.roomId).emit("users", roomUsers);
+		// 	}
+		// });
 
 		socket.on("drawing", (data) => {
 			socket.broadcast.to(userRoom).emit("canvasImage", data);
