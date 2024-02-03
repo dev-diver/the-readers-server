@@ -164,6 +164,8 @@
 const express = require("express");
 const router = express.Router();
 const { User } = require("../../models");
+const { Op } = require("sequelize");
+
 router
 	.route("/")
 	.get(async (req, res) => {
@@ -285,4 +287,19 @@ router
 			});
 	});
 
+// 유저가 참여하고 있는 방 목록
+router.route("/:id/rooms").get(async (req, res) => {
+	console.log(req.params.id);
+	try {
+		const user = await User.findByPk(req.params.id);
+		if (!user) {
+			return res.status(404).json({ message: "유저를 찾을 수 없습니다.", data: {} });
+		}
+		const rooms = await user.getRooms(); // 유저가 참여하고 있는 방 목록 조회
+		res.json({ message: "유저의 방 조회 성공", data: rooms });
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({ message: "서버 오류", data: err });
+	}
+});
 module.exports = router;
