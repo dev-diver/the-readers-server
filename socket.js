@@ -35,6 +35,14 @@ module.exports = (server) => {
 			}
 		});
 
+		// 진태 추가 코드
+		// requestAttention 이벤트를 수신하면
+		// receiveAttention 이벤트를 모든 클라이언트에게 전송
+		socket.on("requestAttention", (data) => {
+			// 모든 클라이언트에게 현재 유저의 스크롤 위치를 전송
+			socket.broadcast.emit("receiveAttention", { scrollTop: data.scrollTop });
+		});
+
 		//pointer
 		socket.on("movepointer", (data) => {
 			// 커서 위치와 클라이언트 ID 매핑
