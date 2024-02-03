@@ -1,6 +1,10 @@
 const bcrypt = require("bcrypt");
 const passport = require("passport");
+<<<<<<< Updated upstream
 const User = require("../models/");
+=======
+const User = require("../models/user");
+>>>>>>> Stashed changes
 //회원가입 controller
 exports.signup = async (req, res, next) => {
 	const { email, nick, password } = req.body;

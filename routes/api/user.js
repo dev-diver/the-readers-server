@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const { Op } = require("sequelize");
 const { User } = require("../../models");
+const { isLoggedIn } = require("../../middlewares");
+const { follow } = require("../../controllers/user");
+
 router
 	.route("/")
 	.get(async (req, res) => {

@@ -14,13 +14,14 @@ module.exports = (server) => {
 	const colors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]; // 색상 배열
 
 	io.on("connection", (socket) => {
+		console.log("---------------<   1   >----------------");
 		const clientId = clientCounter % colors.length; // 클라이언트 ID를 색상 배열의 길이로 나눔
 		clientCounter++; // 다음 클라이언트를 위해 카운터 증가
 
 		console.log("A user connected: " + socket.id + " with color: " + colors[clientId]);
 
 		socket.on("disconnect", () => {
-			console.log("User disconnected");
+			console.log("Us er disconnected");
 			clientCounter--; // 추가 확인 (진태)
 
 			const userLeaves = userLeave(socket.id);
@@ -91,6 +92,24 @@ module.exports = (server) => {
 		socket.on("drawing", (data) => {
 			socket.broadcast.to(userRoom).emit("canvasImage", data);
 		});
+		// video chat
+		socket.on("join_room", (roomName) => {
+			console.log("---------------<   join_room   >----------------");
+			socket.join(roomName);
+			socket.to(roomName).emit("welcome");
+		});
+		socket.on("offer", (offer, roomName) => {
+			console.log("---------------<   offer   >----------------");
+			socket.to(roomName).emit("offer", offer);
+		});
+		socket.on("answer", (answer, roomName) => {
+			console.log("---------------<   answer   >----------------");
+			socket.to(roomName).emit("answer", answer);
+		});
+		socket.on("ice", (ice, roomName) => {
+			console.log("---------------<   ice   >----------------");
+			socket.to(roomName).emit("ice", ice);
+		}); // 인터넷 연결 생성, 브라우저가 서로 소통할 수 있게 만들어줌.
 	});
 	return io;
 };
