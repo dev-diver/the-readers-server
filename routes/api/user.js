@@ -159,6 +159,30 @@
  *               $ref: '#/components/schemas/User'
  *       500:
  *         description: 유저 추가 실패
+ * /api/user/{id}/rooms:
+ *   get:
+ *     tags: [User]
+ *     summary: 유저가 참여하고 있는 방 목록
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 유저가 참여하고 있는 방 목록
+ *     responses:
+ *       200:
+ *         description: 유저의 방 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Room'
+ *       404:
+ *         description: 유저를 찾을 수 없습니다.
+ *       500:
+ *         description: 서버 에러
  */
 
 const express = require("express");
@@ -296,6 +320,9 @@ router.route("/:id/rooms").get(async (req, res) => {
 			return res.status(404).json({ message: "유저를 찾을 수 없습니다.", data: {} });
 		}
 		const rooms = await user.getRooms(); // 유저가 참여하고 있는 방 목록 조회
+		if (rooms.length === 0) {
+			return res.status(404).json({ message: "유저가 속한 방이 없습니다.", data: {} });
+		}
 		res.json({ message: "유저의 방 조회 성공", data: rooms });
 	} catch (err) {
 		console.log(err);
