@@ -36,6 +36,14 @@ module.exports = (server) => {
 			}
 		});
 
+		// 진태 추가 코드
+		// requestAttention 이벤트를 수신하면
+		// receiveAttention 이벤트를 모든 클라이언트에게 전송
+		socket.on("requestAttention", (data) => {
+			// 모든 클라이언트에게 현재 유저의 스크롤 위치를 전송
+			socket.broadcast.emit("receiveAttention", { scrollTop: data.scrollTop });
+		});
+
 		//pointer
 		socket.on("movepointer", (data) => {
 			// 커서 위치와 클라이언트 ID 매핑
@@ -62,7 +70,7 @@ module.exports = (server) => {
 
 		// drawing canvas
 		let imageUrl, userRoom;
-		socket.on("user-joined", (userdata) => {
+		socket.on("room-joined", (userdata) => {
 			if (userdata.userName) {
 				const { roomId, bookId, memberId, userId, userName, host, presenter } = userdata;
 				userRoom = roomId;
@@ -81,13 +89,13 @@ module.exports = (server) => {
 			}
 		});
 
-		socket.on("user-changed", (userdata) => {
-			if (userdata.userName) {
-				userChange(userdata);
-				const roomUsers = getUsers(userdata.roomId);
-				io.to(userdata.roomId).emit("users", roomUsers);
-			}
-		});
+		// socket.on("user-changed", (userdata) => {
+		// 	if (userdata.userName) {
+		// 		userChange(userdata);
+		// 		const roomUsers = getUsers(userdata.roomId);
+		// 		io.to(userdata.roomId).emit("users", roomUsers);
+		// 	}
+		// });
 
 		socket.on("drawing", (data) => {
 			socket.broadcast.to(userRoom).emit("canvasImage", data);

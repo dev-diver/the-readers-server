@@ -1,3 +1,152 @@
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Book:
+ *       type: object
+ *       required:
+ *         - id
+ *         - name
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: 책 고유 id
+ *         name:
+ *           type: string
+ *           description: 책 이름
+ *         url:
+ *           type: string
+ *           description: 책 url
+ */
+
+/**
+ * @swagger
+ * tags:
+ *   name: Book
+ *   description: 책 API 정리
+ * /api/books/{id}:
+ *   get:
+ *     tags: [Book]
+ *     summary: ID로 책 조회
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID로 책 조회
+ *     responses:
+ *       200:
+ *         description: 책 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
+ *       404:
+ *         description: 책을 찾을 수 없습니다.
+ *       500:
+ *         description: 서버 에러
+ *
+ *   put:
+ *     tags: [Book]
+ *     summary: ID로 책을 찾고 수정
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID로 책을 찾고 수정
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Book'
+ *       description: 책 수정
+ *     responses:
+ *       200:
+ *         description: 책 수정 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
+ *       404:
+ *         description: 책을 찾을 수 없습니다.
+ *       500:
+ *         description: 서버 에러
+ *
+ *   delete:
+ *     tags: [Book]
+ *     summary: ID로 책을 찾고 삭제
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID로 책을 찾고 삭제
+ *     responses:
+ *       200:
+ *         description: 책 삭제 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
+ *       404:
+ *         description: 책을 찾을 수 없습니다.
+ *       500:
+ *         description: 서버 에러
+ *
+ * /api/books:
+ *   get:
+ *     tags: [Book]
+ *     summary: 책 이름으로 책 검색
+ *     parameters:
+ *       - in: query
+ *         name: bookname
+ *         schema:
+ *           type: string
+ *         description: 책 이름으로 책 검색
+ *     responses:
+ *       200:
+ *         description: 책 검색 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Book'
+ *       404:
+ *         description: 책을 찾을 수 없습니다.
+ *       500:
+ *         description: 서버 에러
+ *   post:
+ *     tags: [Book]
+ *     summary: 책 추가
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: 책 이름
+ *               url:
+ *                 type: string
+ *                 description: 책 url
+ *     responses:
+ *       200:
+ *         description: 책 추가 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
+ *       500:
+ *         description: 책 추가 실패
+ */
 var express = require("express");
 var router = express.Router();
 const { Op } = require("sequelize");
@@ -15,6 +164,9 @@ router
 			},
 		})
 			.then((book) => {
+				if (book === null) {
+					return res.status(404).json({ message: "책을 찾을 수 없습니다." });
+				}
 				console.log(book);
 				res.json({ message: "조회 성공", data: book });
 			})
@@ -77,6 +229,9 @@ router
 			},
 		})
 			.then((books) => {
+				if (books.length === 0) {
+					return res.status(404).json({ message: "책을 찾을 수 없습니다." });
+				}
 				console.log(books);
 				res.json({ message: "검색 성공", data: books });
 			})

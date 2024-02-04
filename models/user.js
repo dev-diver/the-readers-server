@@ -52,9 +52,15 @@ const initUserModel = (sequelize, DataTypes) => {
 		});
 
 		User.belongsToMany(models.Book, { through: "User_Book" });
-		User.belongsToMany(models.Room, { through: "Room_User" });
-
+		// User.belongsToMany(models.Room, { through: "Room_User" });
+		// 명시적인 관계 설정 (foreignKey, otherKey)
+		User.belongsToMany(models.Room, {
+			through: "Room_User", // 조인 테이블 이름 설정
+			foreignKey: "UserId", // User 모델에서 사용될 외래 키
+			otherKey: "RoomId", // Room 모델에서 사용될 외래 키
+		});
 		User.belongsToMany(models.Highlight, { through: "User_Highlight" });
+		User.belongsToMany(models.Translation, { through: "User_Translation" });
 	};
 
 	return User;
