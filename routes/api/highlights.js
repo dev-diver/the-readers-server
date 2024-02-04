@@ -28,7 +28,7 @@ router.get("/user/:userId/book/:bookId/page/:pageNum", (req, res) => {
 
 router.route("/user/:userId").post((req, res) => {
 	const userId = req.params.userId;
-	const highlights = req.body;
+	const highlights = ({ bookId, pageNum, text, startContainer, startOffset, endContainer, endOffset } = req.body);
 	Highlight.create(highlights)
 		.then((highlight) => {
 			return User.findByPk(userId).then((user) => {
