@@ -19,54 +19,6 @@ module.exports = (server) => {
 
 		console.log("A user connected: " + socket.id + " with color: " + colors[clientId]);
 
-		socket.on("disconnect", () => {
-			console.log("User disconnected");
-			clientCounter--; // 추가 확인 (진태)
-
-			const userLeaves = userLeave(socket.id);
-			const roomUsers = getUsers(userRoom);
-			// console.log("roomUsers:", roomUsers);
-
-			if (userLeaves) {
-				io.to(userLeaves.roomId).emit("message", {
-					message: `${userLeaves.username} left the chat`,
-				});
-				io.to(userLeaves.roomId).emit("users", roomUsers);
-			}
-		});
-
-		// 진태 추가 코드
-		// requestAttention 이벤트를 수신하면
-		// receiveAttention 이벤트를 모든 클라이언트에게 전송
-		socket.on("requestAttention", (data) => {
-			// 모든 클라이언트에게 현재 유저의 스크롤 위치를 전송
-			socket.broadcast.emit("receiveAttention", { scrollTop: data.scrollTop });
-		});
-
-		//pointer
-		socket.on("movepointer", (data) => {
-			// 커서 위치와 클라이언트 ID 매핑
-			const pointerData = {
-				id: socket.id,
-				color: colors[clientId], // 색상 추가
-
-				page: data.page,
-				x: data.x,
-				y: data.y,
-			};
-			io.emit("updatepointer", pointerData);
-		});
-
-		//pdf viewer
-		socket.on("attention", (data) => {
-			io.emit("attention", data);
-		});
-
-		socket.on("attention", (data) => {
-			socket.broadcast.emit(data);
-		});
-
-		// drawing canvas
 		let imageUrl, userRoom;
 		socket.on("room-joined", (userdata) => {
 			if (userdata.userName) {
@@ -87,13 +39,39 @@ module.exports = (server) => {
 			}
 		});
 
-		// socket.on("user-changed", (userdata) => {
-		// 	if (userdata.userName) {
-		// 		userChange(userdata);
-		// 		const roomUsers = getUsers(userdata.roomId);
-		// 		io.to(userdata.roomId).emit("users", roomUsers);
-		// 	}
-		// });
+		socket.on("disconnect", () => {
+			console.log("User disconnected");
+			clientCounter--; // 추가 확인 (진태)
+
+			const userLeaves = userLeave(socket.id);
+			const roomUsers = getUsers(userRoom);
+			// console.log("roomUsers:", roomUsers);
+
+			if (userLeaves) {
+				io.to(userLeaves.roomId).emit("message", {
+					message: `${userLeaves.username} left the chat`,
+				});
+				io.to(userLeaves.roomId).emit("users", roomUsers);
+			}
+		});
+
+		socket.on("requestAttention", (data) => {
+			socket.broadcast.emit("receiveAttention", data);
+		});
+
+		//pointer
+		socket.on("movepointer", (data) => {
+			// 커서 위치와 클라이언트 ID 매핑
+			const pointerData = {
+				id: socket.id,
+				color: colors[clientId], // 색상 추가
+
+				page: data.page,
+				x: data.x,
+				y: data.y,
+			};
+			io.emit("updatepointer", pointerData);
+		});
 
 		socket.on("drawing", (data) => {
 			socket.broadcast.to(userRoom).emit("canvasImage", data);
