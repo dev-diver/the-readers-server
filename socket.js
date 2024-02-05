@@ -1,5 +1,5 @@
 const { Server } = require("socket.io");
-const { userJoin, userChange, getRoomUsers, userLeave } = require("./utils/user");
+const { userJoin, getRoomUsers, userLeave } = require("./utils/user");
 
 module.exports = (server) => {
 	const io = new Server(server, {
@@ -66,6 +66,16 @@ module.exports = (server) => {
 
 		socket.on("drawing", (data) => {
 			socket.broadcast.to(data.location.roomId).emit("canvasImage", data);
+		});
+
+		socket.on("insert-highlight", (data) => {
+			console.log("insert-highlight", data);
+			socket.broadcast.to(data.roomId).emit("draw-highlight", data);
+		});
+
+		socket.on("delete-highlight", (data) => {
+			console.log("delete-highlight", data);
+			socket.broadcast.to(data.roomId).emit("erase-highlight", data);
 		});
 	});
 	return io;
