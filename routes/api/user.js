@@ -194,7 +194,6 @@ router
 	.route("/")
 	.get(async (req, res) => {
 		const nick = req.query.nick;
-		console.log(nick);
 		try {
 			const user = await User.findAll({
 				where: {
@@ -203,14 +202,13 @@ router
 			});
 			res.json({ message: "유저 조회 성공", data: user });
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 			res.status(500).json({ message: "유저 조회 실패", data: [] });
 		}
 	})
 	// Create (user 생성)
 	.post(async (req, res) => {
 		const { email, nick, password, provider, snsid } = req.body;
-		console.log(email, nick, password, provider, snsid);
 
 		// 이메일, 닉네임 중복 검사
 		const existingUser = await User.findOne({
@@ -234,10 +232,29 @@ router
 				res.json({ message: "회원가입 성공", data: user });
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "회원가입 실패", data: {} });
 			});
 	});
+
+// 유저가 참여하고 있는 방 목록
+router.route("/:id/rooms").get(async (req, res) => {
+	console.log("id", req.params.id);
+	try {
+		const user = await User.findByPk(req.params.id);
+		if (!user) {
+			return res.status(404).json({ message: "유저를 찾을 수 없습니다.", data: {} });
+		}
+		const rooms = await user.getRooms(); // 유저가 참여하고 있는 방 목록 조회
+		if (rooms.length === 0) {
+			return res.status(404).json({ message: "유저가 속한 방이 없습니다.", data: {} });
+		}
+		res.json({ message: "유저의 방 조회 성공", data: rooms });
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({ message: "서버 오류", data: err });
+	}
+});
 
 // Read (고유 id를 기준으로 user 조회)
 router
@@ -255,7 +272,7 @@ router
 				res.json({ message: "유저 조회 성공", data: user });
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "유저 조회 실패", data: {} });
 			});
 	})
@@ -278,12 +295,12 @@ router
 						res.json({ message: "유저 비밀번호 수정 성공", data: updateUser });
 					})
 					.catch((err) => {
-						console.log(err);
+						console.error(err);
 						res.status(500).json({ message: "유저 비밀번호 수정 실패", data: {} });
 					});
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "유저 조회 실패", data: {} });
 			});
 	})
@@ -301,32 +318,14 @@ router
 						res.json({ message: "유저 삭제 성공", data: {} });
 					})
 					.catch((err) => {
-						console.log(err);
+						console.error(err);
 						res.status(500).json({ message: "유저 삭제 실패", data: {} });
 					});
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "유저 조회 실패", data: {} });
 			});
 	});
 
-// 유저가 참여하고 있는 방 목록
-router.route("/:id/rooms").get(async (req, res) => {
-	console.log(req.params.id);
-	try {
-		const user = await User.findByPk(req.params.id);
-		if (!user) {
-			return res.status(404).json({ message: "유저를 찾을 수 없습니다.", data: {} });
-		}
-		const rooms = await user.getRooms(); // 유저가 참여하고 있는 방 목록 조회
-		if (rooms.length === 0) {
-			return res.status(404).json({ message: "유저가 속한 방이 없습니다.", data: {} });
-		}
-		res.json({ message: "유저의 방 조회 성공", data: rooms });
-	} catch (err) {
-		console.log(err);
-		res.status(500).json({ message: "서버 오류", data: err });
-	}
-});
 module.exports = router;
