@@ -4,10 +4,6 @@ const initHighlightModel = (sequelize, DataTypes) => {
 	const Highlight = sequelize.define(
 		"Highlight",
 		{
-			num: {
-				type: DataTypes.INTEGER,
-				allowNull: true,
-			},
 			bookId: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
