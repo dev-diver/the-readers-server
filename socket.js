@@ -1,5 +1,5 @@
 const { Server } = require("socket.io");
-const { userJoin, userChange, getUsers, userLeave } = require("./utils/user");
+const { userJoin, userChange, getRoomUsers, userLeave } = require("./utils/user");
 
 module.exports = (server) => {
 	const io = new Server(server, {
@@ -10,48 +10,39 @@ module.exports = (server) => {
 		path: "/socket", // 클라이언트와 동일한 경로를 설정
 	});
 
-	let clientCounter = 0;
 	const colors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]; // 색상 배열
 
 	io.on("connection", (socket) => {
-		const clientId = clientCounter % colors.length; // 클라이언트 ID를 색상 배열의 길이로 나눔
-		clientCounter++; // 다음 클라이언트를 위해 카운터 증가
-
-		console.log("A user connected: " + socket.id + " with color: " + colors[clientId]);
-
-		let imageUrl, userRoom;
 		socket.on("room-joined", (userdata) => {
-			if (userdata.userName) {
-				const { roomId, bookId, memberId, userId, userName, host, presenter } = userdata;
+			if (userdata.userId) {
+				const { userId, userName, roomId } = userdata;
 				userRoom = roomId;
-				const user = userJoin(socket.id, roomId, bookId, memberId, userId, userName, host, presenter);
-				const roomUsers = getUsers(user.roomId);
-				socket.join(user.roomId);
-				socket.broadcast.to(user.roomId).emit("message", {
-					message: "Welcome to ChatRoom",
-				});
-				socket.broadcast.to(user.roomId).emit("message", {
-					message: `${user.userName} has joined`,
-				});
+				const roomUser = userJoin(socket.id, userId, userName, roomId);
+				const roomUsers = getRoomUsers(roomUser.roomId);
+				socket.join(roomUser.roomId);
 
-				io.to(user.roomId).emit("users", roomUsers);
-				io.to(user.roomId).emit("canvasImage", imageUrl);
+				socket.broadcast.to(roomUser.roomId).emit("message", {
+					message: `${roomUser.userName} 님이 입장하셨습니다.`,
+				});
+				console.log(`${roomUser.userName} 님이 입장하셨습니다.`, roomUser);
+				console.log("roomJoined:", roomUsers);
+				io.to(roomUser.roomId).emit("room-users-changed", roomUsers);
 			}
 		});
 
 		socket.on("disconnect", () => {
 			console.log("User disconnected");
-			clientCounter--; // 추가 확인 (진태)
 
 			const userLeaves = userLeave(socket.id);
-			const roomUsers = getUsers(userRoom);
-			// console.log("roomUsers:", roomUsers);
 
 			if (userLeaves) {
+				const roomUsers = getRoomUsers(userLeaves.roomId);
 				io.to(userLeaves.roomId).emit("message", {
-					message: `${userLeaves.username} left the chat`,
+					message: `${userLeaves.userName} 님이 떠났습니다.`,
 				});
-				io.to(userLeaves.roomId).emit("users", roomUsers);
+				console.log(`${userLeaves.userName} 님이 떠났습니다.`, userLeaves);
+				console.log("roomLeaved:", roomUsers);
+				io.to(userLeaves.roomId).emit("room-users-changed", roomUsers);
 			}
 		});
 
@@ -63,9 +54,9 @@ module.exports = (server) => {
 		socket.on("movepointer", (data) => {
 			// 커서 위치와 클라이언트 ID 매핑
 			const pointerData = {
-				id: socket.id,
-				color: colors[clientId], // 색상 추가
-
+				id: user.id,
+				color: colors[user.id % colors.length], // 색상 추가
+				book: data.book,
 				page: data.page,
 				x: data.x,
 				y: data.y,
@@ -74,7 +65,7 @@ module.exports = (server) => {
 		});
 
 		socket.on("drawing", (data) => {
-			socket.broadcast.to(userRoom).emit("canvasImage", data);
+			socket.broadcast.to(data.location.roomId).emit("canvasImage", data);
 		});
 	});
 	return io;
