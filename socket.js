@@ -1,5 +1,6 @@
 const { Server } = require("socket.io");
 const { userJoin, userChange, getUsers, userLeave } = require("./utils/user");
+const { addUser, getUser, getUsersInRoom, removeUser } = require("./utils/users");
 
 module.exports = (server) => {
 	const io = new Server(server, {
@@ -19,6 +20,24 @@ module.exports = (server) => {
 		clientCounter++; // 다음 클라이언트를 위해 카운터 증가
 
 		console.log("A user connected: " + socket.id + " with color: " + colors[clientId]);
+
+		socket.on("join", ({ name, room }, callback) => {
+			const { error, user } = addUser({ id: socket.id, name, room });
+			console.log("user:", user);
+
+			socket.emit("message", {
+				user: "admin",
+				text: `${user.name}, ${user.room}에 오신 것을 환영합니다.`,
+			});
+			socket.join(user.room);
+
+			io.to(user.room).emit("roomData", {
+				room: user.room,
+				users: getUsersInRoom(user.room),
+			});
+
+			if (typeof callback == "function") callback();
+		});
 
 		socket.on("disconnect", () => {
 			console.log("Us er disconnected");
@@ -100,24 +119,24 @@ module.exports = (server) => {
 		socket.on("drawing", (data) => {
 			socket.broadcast.to(userRoom).emit("canvasImage", data);
 		});
+
 		// video chat
-		socket.on("join_room", (roomName) => {
-			console.log("---------------<   join_room   >----------------");
-			socket.join(roomName);
-			socket.to(roomName).emit("welcome");
+
+		socket.on("rtc_start", (room) => {
+			socket.to(room).emit("rtc_start", room);
 		});
-		socket.on("offer", (offer, roomName) => {
-			console.log("---------------<   offer   >----------------");
-			socket.to(roomName).emit("offer", offer);
+
+		socket.on("offer", ({ offer, room }) => {
+			socket.to(room).emit("offer", { offer, room });
 		});
-		socket.on("answer", (answer, roomName) => {
-			console.log("---------------<   answer   >----------------");
-			socket.to(roomName).emit("answer", answer);
+
+		socket.on("answer", ({ answer, room }) => {
+			socket.to(room).emit("answer", { answer, room });
 		});
-		socket.on("ice", (ice, roomName) => {
-			console.log("---------------<   ice   >----------------");
-			socket.to(roomName).emit("ice", ice);
-		}); // 인터넷 연결 생성, 브라우저가 서로 소통할 수 있게 만들어줌.
+
+		socket.on("candidate", ({ candidate, room }) => {
+			socket.to(room).emit("candidate", candidate);
+		});
 	});
 	return io;
 };
