@@ -1,3 +1,44 @@
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Highlight:
+ *       type: object
+ *       required:
+ *         - id
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: 하이라이트 고유 id
+ *         num:
+ *           type: integer
+ *           description: 하이라이트 번호
+ *         bookId:
+ *           type: integer
+ *           description: 책 고유 id
+ *         pageNum:
+ *           type: integer
+ *           description: 페이지 번호
+ *         text:
+ *           type: string
+ *           description: 하이라이트 텍스트
+ *         startContainer:
+ *           type: integer
+ *           description: 시작점
+ *         endContainer:
+ *           type: integer
+ *           description: 종료점
+ *         startOffset:
+ *           type: integer
+ *           description: 시작점 오프셋
+ *         endOffset:
+ *           type: integer
+ *           description: 종료점 오프셋
+ *         outerlink:
+ *           type: string
+ *           description: 외부 링크
+ */
+
 var express = require("express");
 var router = express.Router();
 const { Op } = require("sequelize");

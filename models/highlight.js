@@ -21,11 +21,11 @@ const initHighlightModel = (sequelize, DataTypes) => {
 				allowNull: false,
 			},
 			startContainer: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.STRING,
 				allowNull: false,
 			},
 			endContainer: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.STRING,
 				allowNull: false,
 			},
 			startOffset: {
@@ -56,6 +56,7 @@ const initHighlightModel = (sequelize, DataTypes) => {
 		Highlight.belongsTo(models.Book, { foreignKey: "bookId", targetKey: "id" });
 		Highlight.belongsToMany(models.User, { through: "User_Highlight" });
 		Highlight.hasMany(models.Translation, { foreignKey: "highlightId" });
+		Highlight.hasMany(models.Outerlink, { foreignKey: "highlightId" });
 	};
 
 	// Highlight.sync({ force: true })
