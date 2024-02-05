@@ -1,5 +1,5 @@
 const { Server } = require("socket.io");
-const { userJoin, userChange, getUsers, userLeave } = require("./utils/user");
+const { userJoin, userChange, getRoomUsers, userLeave } = require("./utils/user");
 
 module.exports = (server) => {
 	const io = new Server(server, {
@@ -10,47 +10,53 @@ module.exports = (server) => {
 		path: "/socket", // 클라이언트와 동일한 경로를 설정
 	});
 
-	let clientCounter = 0;
 	const colors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]; // 색상 배열
 
 	io.on("connection", (socket) => {
-		console.log("---------------<   1   >----------------");
-		const clientId = clientCounter % colors.length; // 클라이언트 ID를 색상 배열의 길이로 나눔
-		clientCounter++; // 다음 클라이언트를 위해 카운터 증가
+		socket.on("room-joined", (userdata) => {
+			if (userdata.userId) {
+				const { userId, userName, roomId } = userdata;
+				userRoom = roomId;
+				const roomUser = userJoin(socket.id, userId, userName, roomId);
+				const roomUsers = getRoomUsers(roomUser.roomId);
+				socket.join(roomUser.roomId);
 
-		console.log("A user connected: " + socket.id + " with color: " + colors[clientId]);
-
-		socket.on("disconnect", () => {
-			console.log("Us er disconnected");
-			clientCounter--; // 추가 확인 (진태)
-
-			const userLeaves = userLeave(socket.id);
-			const roomUsers = getUsers(userRoom);
-			console.log("roomUsers:", roomUsers);
-
-			if (userLeaves) {
-				io.to(userLeaves.roomId).emit("message", {
-					message: `${userLeaves.username} left the chat`,
+				socket.broadcast.to(roomUser.roomId).emit("message", {
+					message: `${roomUser.userName} 님이 입장하셨습니다.`,
 				});
-				io.to(userLeaves.roomId).emit("users", roomUsers);
+				console.log(`${roomUser.userName} 님이 입장하셨습니다.`, roomUser);
+				console.log("roomJoined:", roomUsers);
+				io.to(roomUser.roomId).emit("room-users-changed", roomUsers);
 			}
 		});
 
-		// 진태 추가 코드
-		// requestAttention 이벤트를 수신하면
-		// receiveAttention 이벤트를 모든 클라이언트에게 전송
+		socket.on("disconnect", () => {
+			console.log("User disconnected");
+
+			const userLeaves = userLeave(socket.id);
+
+			if (userLeaves) {
+				const roomUsers = getRoomUsers(userLeaves.roomId);
+				io.to(userLeaves.roomId).emit("message", {
+					message: `${userLeaves.userName} 님이 떠났습니다.`,
+				});
+				console.log(`${userLeaves.userName} 님이 떠났습니다.`, userLeaves);
+				console.log("roomLeaved:", roomUsers);
+				io.to(userLeaves.roomId).emit("room-users-changed", roomUsers);
+			}
+		});
+
 		socket.on("requestAttention", (data) => {
-			// 모든 클라이언트에게 현재 유저의 스크롤 위치를 전송
-			socket.broadcast.emit("receiveAttention", { scrollTop: data.scrollTop });
+			socket.broadcast.emit("receiveAttention", data);
 		});
 
 		//pointer
 		socket.on("movepointer", (data) => {
 			// 커서 위치와 클라이언트 ID 매핑
 			const pointerData = {
-				id: socket.id,
-				color: colors[clientId], // 색상 추가
-
+				id: user.id,
+				color: colors[user.id % colors.length], // 색상 추가
+				book: data.book,
 				page: data.page,
 				x: data.x,
 				y: data.y,
@@ -58,47 +64,8 @@ module.exports = (server) => {
 			io.emit("updatepointer", pointerData);
 		});
 
-		//pdf viewer
-		socket.on("attention", (data) => {
-			console.log(data);
-			io.emit("attention", data);
-		});
-
-		socket.on("attention", (data) => {
-			socket.broadcast.emit(data);
-		});
-
-		// drawing canvas
-		let imageUrl, userRoom;
-		socket.on("room-joined", (userdata) => {
-			if (userdata.userName) {
-				const { roomId, bookId, memberId, userId, userName, host, presenter } = userdata;
-				userRoom = roomId;
-				const user = userJoin(socket.id, roomId, bookId, memberId, userId, userName, host, presenter);
-				const roomUsers = getUsers(user.roomId);
-				socket.join(user.roomId);
-				socket.broadcast.to(user.roomId).emit("message", {
-					message: "Welcome to ChatRoom",
-				});
-				socket.broadcast.to(user.roomId).emit("message", {
-					message: `${user.userName} has joined`,
-				});
-
-				io.to(user.roomId).emit("users", roomUsers);
-				io.to(user.roomId).emit("canvasImage", imageUrl);
-			}
-		});
-
-		// socket.on("user-changed", (userdata) => {
-		// 	if (userdata.userName) {
-		// 		userChange(userdata);
-		// 		const roomUsers = getUsers(userdata.roomId);
-		// 		io.to(userdata.roomId).emit("users", roomUsers);
-		// 	}
-		// });
-
 		socket.on("drawing", (data) => {
-			socket.broadcast.to(userRoom).emit("canvasImage", data);
+			socket.broadcast.to(data.location.roomId).emit("canvasImage", data);
 		});
 		// video chat
 		socket.on("join_room", (roomName) => {

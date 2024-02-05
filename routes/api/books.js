@@ -157,7 +157,6 @@ router
 	.route("/:id")
 	.get((req, res) => {
 		const id = req.params.id;
-		console.log(Book);
 		Book.findOne({
 			where: {
 				id: id,
@@ -171,7 +170,7 @@ router
 				res.json({ message: "조회 성공", data: book });
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "조회 실패", data: null });
 			});
 	})
@@ -192,7 +191,7 @@ router
 				res.json({ message: "책 수정 성공", data: updateBook });
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "책 수정 실패", data: null });
 			});
 	})
@@ -210,7 +209,7 @@ router
 				res.json({ message: "책 삭제 성공", data: {} });
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "책 삭제 실패", data: null });
 			});
 	});
@@ -236,14 +235,13 @@ router
 				res.json({ message: "검색 성공", data: books });
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "검색 실패", data: [] });
 			});
 	})
 	// CREATE (책 추가)
 	.post((req, res) => {
 		const { name, url } = req.body;
-		console.log(name, url);
 		// 데이터 검증
 		if (!name || !url) {
 			return res.json({ message: "모든 정보를 입력해주세요.", data: {} });
@@ -254,7 +252,7 @@ router
 				res.json({ message: "책 추가 성공", data: book });
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 				res.status(500).json({ message: "책 추가 실패", data: {} });
 			});
 	});

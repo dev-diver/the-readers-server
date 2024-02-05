@@ -1,10 +1,16 @@
 let users = [];
 
 // Join user to chat
-const userJoin = (id, roomId, bookId, memberId, userId, userName, host, presenter) => {
-	const user = { id, roomId, bookId, memberId, userId, userName, host, presenter };
-	users.push(user);
-	return user;
+const userJoin = (socketId, userId, userName, roomId) => {
+	const existingUser = users.find((user) => user.userId === userId);
+
+	if (!existingUser) {
+		const user = { socketId, userId, userName, roomId };
+		users.push(user);
+		return user;
+	} else {
+		return existingUser;
+	}
 };
 
 const userChange = (newUser) => {
@@ -16,8 +22,8 @@ const userChange = (newUser) => {
 	});
 };
 // User leaves chat
-const userLeave = (id) => {
-	const index = users.findIndex((user) => user.id === id);
+const userLeave = (socketId) => {
+	const index = users.findIndex((user) => user.socketId === socketId);
 	console.log("userLeave index:", index);
 	if (index !== -1) {
 		const result = users.splice(index, 1)[0];
@@ -26,7 +32,7 @@ const userLeave = (id) => {
 };
 
 //get users
-const getUsers = (roomId) => {
+const getRoomUsers = (roomId) => {
 	const RoomUsers = [];
 	users.map((user) => {
 		if (user.roomId == roomId) {
@@ -41,5 +47,5 @@ module.exports = {
 	userJoin,
 	userChange,
 	userLeave,
-	getUsers,
+	getRoomUsers,
 };
