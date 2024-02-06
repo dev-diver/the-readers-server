@@ -18,7 +18,6 @@ router.route("/drawings").post(upload.single("file"), async (req, res, next) => 
 		s3Upload(uploadParams)
 			.promise()
 			.then((data) => {
-				console.log(data);
 				res.json({ url: data.Location });
 			})
 			.catch((err) => {
@@ -42,7 +41,6 @@ router.route("/").post(upload.single("file"), async (req, res, next) => {
 	s3Upload(uploadParams)
 		.promise()
 		.then((data) => {
-			console.log(data);
 			res.json({ url: data.Location });
 		})
 		.catch((err) => {
