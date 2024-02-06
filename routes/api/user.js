@@ -187,8 +187,10 @@
 
 const express = require("express");
 const router = express.Router();
-const { User } = require("../../models");
 const { Op } = require("sequelize");
+const { User } = require("../../models");
+const { isLoggedIn } = require("../../middlewares");
+const { follow } = require("../../controllers/user");
 
 router
 	.route("/")
