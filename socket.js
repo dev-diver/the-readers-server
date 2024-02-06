@@ -1,7 +1,5 @@
 const { Server } = require("socket.io");
-const { userJoin, userChange, getUsers, userLeave } = require("./utils/user");
-const { addUser, getUser, getUsersInRoom, removeUser } = require("./utils/users");
-
+const { userJoin, getRoomUsers, userLeave } = require("./utils/user");
 
 module.exports = (server) => {
 	const io = new Server(server, {
@@ -15,11 +13,6 @@ module.exports = (server) => {
 	const colors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]; // 색상 배열
 
 	io.on("connection", (socket) => {
-
-		console.log("---------------<   1   >----------------");
-		const clientId = clientCounter % colors.length; // 클라이언트 ID를 색상 배열의 길이로 나눔
-		clientCounter++; // 다음 클라이언트를 위해 카운터 증가
-
 		socket.on("room-joined", (userdata) => {
 			if (userdata.userId) {
 				const { userId, userName, roomId } = userdata;
@@ -27,7 +20,6 @@ module.exports = (server) => {
 				const roomUser = userJoin(socket.id, userId, userName, roomId);
 				const roomUsers = getRoomUsers(roomUser.roomId);
 				socket.join(roomUser.roomId);
-
 
 				socket.broadcast.to(roomUser.roomId).emit("message", {
 					message: `${roomUser.userName} 님이 입장하셨습니다.`,
@@ -38,26 +30,7 @@ module.exports = (server) => {
 			}
 		});
 
-		socket.on("join", ({ name, room }, callback) => {
-			const { error, user } = addUser({ id: socket.id, name, room });
-			console.log("user:", user);
-
-			socket.emit("message", {
-				user: "admin",
-				text: `${user.name}, ${user.room}에 오신 것을 환영합니다.`,
-			});
-			socket.join(user.room);
-
-			io.to(user.room).emit("roomData", {
-				room: user.room,
-				users: getUsersInRoom(user.room),
-			});
-
-			if (typeof callback == "function") callback();
-		});
-
 		socket.on("disconnect", () => {
-
 			console.log("User disconnected");
 
 			const userLeaves = userLeave(socket.id);
@@ -94,7 +67,6 @@ module.exports = (server) => {
 		socket.on("drawing", (data) => {
 			socket.broadcast.to(data.location.roomId).emit("canvasImage", data);
 		});
-
 
 		socket.on("insert-highlight", (data) => {
 			console.log("insert-highlight", data);
