@@ -232,13 +232,8 @@ router
 				res.json({ message: "회원가입 성공", data: user });
 			})
 			.catch((err) => {
-<<<<<<< HEAD
-				console.log(err);
-				res.status(500).json({ message: "회원가입 실패", data: [] });
-=======
 				console.error(err);
-				res.status(500).json({ message: "회원가입 실패", data: {} });
->>>>>>> upstream/dev
+				res.status(500).json({ message: "회원가입 실패", data: [] });
 			});
 	});
 
@@ -277,13 +272,8 @@ router
 				res.json({ message: "유저 조회 성공", data: user });
 			})
 			.catch((err) => {
-<<<<<<< HEAD
 				console.log(err);
 				res.status(500).json({ message: "유저 조회 실패", data: [] });
-=======
-				console.error(err);
-				res.status(500).json({ message: "유저 조회 실패", data: {} });
->>>>>>> upstream/dev
 			});
 	})
 	.put((req, res) => {
@@ -305,7 +295,6 @@ router
 						res.json({ message: "유저 비밀번호 수정 성공", data: updateUser });
 					})
 					.catch((err) => {
-<<<<<<< HEAD
 						console.log(err);
 						res.status(500).json({ message: "유저 비밀번호 수정 실패", data: [] });
 					});
@@ -313,15 +302,6 @@ router
 			.catch((err) => {
 				console.log(err);
 				res.status(500).json({ message: "유저 조회 실패", data: [] });
-=======
-						console.error(err);
-						res.status(500).json({ message: "유저 비밀번호 수정 실패", data: {} });
-					});
-			})
-			.catch((err) => {
-				console.error(err);
-				res.status(500).json({ message: "유저 조회 실패", data: {} });
->>>>>>> upstream/dev
 			});
 	})
 	.delete((req, res) => {
@@ -338,7 +318,6 @@ router
 						res.json({ message: "유저 삭제 성공", data: [] });
 					})
 					.catch((err) => {
-<<<<<<< HEAD
 						console.log(err);
 						res.status(500).json({ message: "유저 삭제 실패", data: [] });
 					});
@@ -364,19 +343,8 @@ router.route("/:id/rooms").get(async (req, res) => {
 		res.json({ message: "유저의 방 조회 성공", data: rooms });
 	} catch (err) {
 		console.log(err);
-		res.status(500).json({ message: "서버 오류", data: err });
+		res.status(500).json({ message: "유저 조회 실패", data: [] });
 	}
 });
-=======
-						console.error(err);
-						res.status(500).json({ message: "유저 삭제 실패", data: {} });
-					});
-			})
-			.catch((err) => {
-				console.error(err);
-				res.status(500).json({ message: "유저 조회 실패", data: {} });
-			});
-	});
 
->>>>>>> upstream/dev
 module.exports = router;

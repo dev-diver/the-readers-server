@@ -1,9 +1,9 @@
 const { sequelize } = require("../config/db.js");
 const { DataTypes } = require("sequelize");
 
-const initOuterlinkModel = (sequelize, DataTypes) => {
-	const Outerlink = sequelize.define(
-		"Outerlink",
+const initOuterslinkModel = (sequelize, DataTypes) => {
+	const Outerlinks = sequelize.define(
+		"Outerlinks",
 		{
 			url: {
 				type: DataTypes.STRING,
@@ -20,13 +20,13 @@ const initOuterlinkModel = (sequelize, DataTypes) => {
 			collate: "utf8_general_ci",
 		}
 	);
-	Outerlink.associate = (models) => {
+	Outerlinks.associate = (models) => {
 		// Outerlink가 Highlight에 속하는 관계 설정
-		Outerlink.belongsTo(models.Highlight, {
+		Outerlinks.belongsTo(models.Highlight, {
 			foreignKey: "highlightId", // Outerlink 테이블에 추가될 외래 키
 		});
 	};
 
-	return Outerlink;
+	return Outerlinks;
 };
-module.exports = initOuterlinkModel(sequelize, DataTypes);
+module.exports = initOuterslinkModel(sequelize, DataTypes);

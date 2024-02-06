@@ -6,7 +6,7 @@ const initLinkModel = (sequelize, DataTypes) => {
 		"Link",
 		{
 			note: {
-				type: DataTypes.STRING,
+				type: DataTypes.STRING, // 링크 간의 관계를 정의 (예: 정의, 반대 개념, 유사 개념 등)
 				allowNull: true, // 메모는 필수가 아니므로 null을 허용
 			},
 			fromHighlightId: {

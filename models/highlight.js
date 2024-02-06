@@ -52,7 +52,7 @@ const initHighlightModel = (sequelize, DataTypes) => {
 		Highlight.belongsTo(models.Book, { foreignKey: "bookId", targetKey: "id" });
 		Highlight.belongsToMany(models.User, { through: "User_Highlight" });
 		Highlight.hasMany(models.Translation, { foreignKey: "highlightId" });
-		Highlight.hasMany(models.Outerlink, { foreignKey: "highlightId" });
+		Highlight.hasMany(models.Outerlinks, { foreignKey: "highlightId" });
 	};
 
 	// Highlight.sync({ force: true })
