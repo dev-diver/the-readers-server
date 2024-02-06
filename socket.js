@@ -1,5 +1,4 @@
 const { Server } = require("socket.io");
-
 const { userJoin, userChange, getUsers, userLeave } = require("./utils/user");
 const { addUser, getUser, getUsersInRoom, removeUser } = require("./utils/users");
 
@@ -95,6 +94,7 @@ module.exports = (server) => {
 		socket.on("drawing", (data) => {
 			socket.broadcast.to(data.location.roomId).emit("canvasImage", data);
 		});
+
 
 		socket.on("insert-highlight", (data) => {
 			console.log("insert-highlight", data);
