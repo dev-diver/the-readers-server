@@ -46,12 +46,22 @@ module.exports = (server) => {
 			}
 		});
 
-		socket.on("requestAttention", (data) => {
-			socket.broadcast.emit("receiveAttention", data);
+		socket.on("request-attention", (data) => {
+			socket.broadcast.emit("receive-attention", data);
+		});
+
+		socket.on("request-attention-scroll", (data) => {
+			console.log("request-attention-scroll", data);
+			socket.broadcast.emit("receive-attention-scroll", data);
+		});
+
+		socket.on("request-attention-book", (data) => {
+			console.log("request-attention-book", data);
+			socket.broadcast.emit("receive-attention-book", data);
 		});
 
 		//pointer
-		socket.on("movepointer", (data) => {
+		socket.on("move-pointer", (data) => {
 			// 커서 위치와 클라이언트 ID 매핑
 			const pointerData = {
 				id: user.id,
@@ -61,12 +71,16 @@ module.exports = (server) => {
 				x: data.x,
 				y: data.y,
 			};
-			io.emit("updatepointer", pointerData);
+			io.emit("update-pointer", pointerData);
 		});
+
+		//canvas
 
 		socket.on("drawing", (data) => {
 			socket.broadcast.to(data.location.roomId).emit("canvasImage", data);
 		});
+
+		//highlight
 
 		socket.on("insert-highlight", (data) => {
 			console.log("insert-highlight", data);
