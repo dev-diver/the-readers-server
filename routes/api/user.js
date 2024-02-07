@@ -215,11 +215,11 @@ router
 			where: { email: email, nick: nick },
 		});
 		if (existingUser) {
-			return res.status(400).json({ message: "이미 존재하는 회원정보입니다.", data: {} });
+			return res.status(400).json({ message: "이미 존재하는 회원정보입니다.", data: [] });
 		}
 
 		if (!email || !nick || !password || !provider || !snsid) {
-			return res.json({ message: "모든 정보를 입력해주세요.", data: {} });
+			return res.json({ message: "모든 정보를 입력해주세요.", data: [] });
 		}
 
 		// provider 필드의 값이 'local' 또는 'kakao'인지 확인 (sns 로그인 업데이트 되면 수정 필요)
@@ -233,7 +233,7 @@ router
 			})
 			.catch((err) => {
 				console.error(err);
-				res.status(500).json({ message: "회원가입 실패", data: {} });
+				res.status(500).json({ message: "회원가입 실패", data: [] });
 			});
 	});
 
@@ -267,13 +267,13 @@ router
 			.then((user) => {
 				console.log(user);
 				if (!user) {
-					return res.status(404).json({ message: "유저를 찾을 수 없습니다.", data: {} });
+					return res.status(404).json({ message: "유저를 찾을 수 없습니다.", data: [] });
 				}
 				res.json({ message: "유저 조회 성공", data: user });
 			})
 			.catch((err) => {
-				console.error(err);
-				res.status(500).json({ message: "유저 조회 실패", data: {} });
+				console.log(err);
+				res.status(500).json({ message: "유저 조회 실패", data: [] });
 			});
 	})
 	.put((req, res) => {
@@ -283,7 +283,7 @@ router
 		})
 			.then((user) => {
 				if (!user) {
-					return res.status(404).json({ message: "유저를 찾을 수 없습니다.", data: {} });
+					return res.status(404).json({ message: "유저를 찾을 수 없습니다.", data: [] });
 				}
 
 				// 사용자 비밀번호 업데이트
@@ -295,13 +295,13 @@ router
 						res.json({ message: "유저 비밀번호 수정 성공", data: updateUser });
 					})
 					.catch((err) => {
-						console.error(err);
-						res.status(500).json({ message: "유저 비밀번호 수정 실패", data: {} });
+						console.log(err);
+						res.status(500).json({ message: "유저 비밀번호 수정 실패", data: [] });
 					});
 			})
 			.catch((err) => {
-				console.error(err);
-				res.status(500).json({ message: "유저 조회 실패", data: {} });
+				console.log(err);
+				res.status(500).json({ message: "유저 조회 실패", data: [] });
 			});
 	})
 	.delete((req, res) => {
@@ -310,22 +310,41 @@ router
 		})
 			.then((user) => {
 				if (!user) {
-					return res.status(404).json({ message: "유저를 찾을 수 없습니다.", data: {} });
+					return res.status(404).json({ message: "유저를 찾을 수 없습니다.", data: [] });
 				}
 				user
 					.destroy()
 					.then(() => {
-						res.json({ message: "유저 삭제 성공", data: {} });
+						res.json({ message: "유저 삭제 성공", data: [] });
 					})
 					.catch((err) => {
-						console.error(err);
-						res.status(500).json({ message: "유저 삭제 실패", data: {} });
+						console.log(err);
+						res.status(500).json({ message: "유저 삭제 실패", data: [] });
 					});
 			})
 			.catch((err) => {
-				console.error(err);
-				res.status(500).json({ message: "유저 조회 실패", data: {} });
+				console.log(err);
+				res.status(500).json({ message: "유저 조회 실패", data: [] });
 			});
 	});
+
+// 유저가 참여하고 있는 방 목록
+router.route("/:id/rooms").get(async (req, res) => {
+	console.log(req.params.id);
+	try {
+		const user = await User.findByPk(req.params.id);
+		if (!user) {
+			return res.status(404).json({ message: "유저를 찾을 수 없습니다.", data: [] });
+		}
+		const rooms = await user.getRooms(); // 유저가 참여하고 있는 방 목록 조회
+		if (rooms.length === 0) {
+			return res.json({ message: "유저가 속한 방이 없습니다.", data: [] });
+		}
+		res.json({ message: "유저의 방 조회 성공", data: rooms });
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({ message: "유저 조회 실패", data: [] });
+	}
+});
 
 module.exports = router;
