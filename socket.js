@@ -67,8 +67,8 @@ module.exports = (server) => {
 			const pointerData = {
 				id: data.userId,
 				color: colors[data.userId % colors.length], // 색상 추가
-				book: data.book,
-				page: data.page,
+				bookId: data.bookId,
+				pageNum: data.pageNum,
 				x: data.x,
 				y: data.y,
 			};
