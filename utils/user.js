@@ -21,6 +21,7 @@ const userChange = (newUser) => {
 		return user; // 그렇지 않으면 기존 사용자를 반환
 	});
 };
+
 // User leaves chat
 const userLeave = (socketId) => {
 	const index = users.findIndex((user) => user.socketId === socketId);

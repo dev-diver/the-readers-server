@@ -62,10 +62,11 @@ module.exports = (server) => {
 
 		//pointer
 		socket.on("move-pointer", (data) => {
+			console.log("data", data);
 			// 커서 위치와 클라이언트 ID 매핑
 			const pointerData = {
-				id: user.id,
-				color: colors[user.id % colors.length], // 색상 추가
+				id: data.userId,
+				color: colors[data.userId % colors.length], // 색상 추가
 				book: data.book,
 				page: data.page,
 				x: data.x,
@@ -77,7 +78,10 @@ module.exports = (server) => {
 		//canvas
 
 		socket.on("drawing", (data) => {
-			socket.broadcast.to(data.location.roomId).emit("canvasImage", data);
+			console.log("roomId", data.location.roomId);
+			if (data) {
+				io.to(data.location.roomId).emit("canvasImage", data);
+			}
 		});
 
 		//highlight
