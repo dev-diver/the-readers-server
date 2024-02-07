@@ -1,9 +1,67 @@
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Highlight:
+ *       type: object
+ *       required:
+ *         - id
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: 하이라이트 고유 id
+ *         num:
+ *           type: integer
+ *           description: 하이라이트 번호
+ *         bookId:
+ *           type: integer
+ *           description: 책 고유 id
+ *         pageNum:
+ *           type: integer
+ *           description: 페이지 번호
+ *         text:
+ *           type: string
+ *           description: 하이라이트 텍스트
+ *         startContainer:
+ *           type: integer
+ *           description: 시작점
+ *         endContainer:
+ *           type: integer
+ *           description: 종료점
+ *         startOffset:
+ *           type: integer
+ *           description: 시작점 오프셋
+ *         endOffset:
+ *           type: integer
+ *           description: 종료점 오프셋
+ *         outerlink:
+ *           type: string
+ *           description: 외부 링크
+ */
+
 var express = require("express");
 var router = express.Router();
 const { Op } = require("sequelize");
 const Book = require("../../models/book");
 const User = require("../../models/user");
 const Highlight = require("../../models/highlight");
+
+// READ (전체 highlight 조회_우선 bookId로 조회)
+router.route("/book/:bookId").get(async (req, res) => {
+	const bookId = req.params.bookId;
+	try {
+		console.log("통신");
+		const highlight = await Highlight.findAll({
+			where: {
+				bookId: { [Op.like]: `%${bookId}%` },
+			},
+		});
+		res.json({ message: "Highlight 조회 성공", data: highlight });
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ message: "Highlight 조회 실패", data: [] });
+	}
+});
 
 router.get("/user/:userId/book/:bookId/page/:pageNum", (req, res) => {
 	const { userId, bookId, pageNum } = req.params;
@@ -18,6 +76,7 @@ router.get("/user/:userId/book/:bookId/page/:pageNum", (req, res) => {
 		where: { bookId: bookId },
 	})
 		.then((highlights) => {
+			console.log(highlights);
 			res.json(highlights);
 		})
 		.catch((err) => {
@@ -28,7 +87,8 @@ router.get("/user/:userId/book/:bookId/page/:pageNum", (req, res) => {
 
 router.route("/user/:userId").post((req, res) => {
 	const userId = req.params.userId;
-	const highlights = ({ bookId, pageNum, text, startContainer, startOffset, endContainer, endOffset } = req.body);
+	// const highlights = ({ bookId, pageNum, text, startContainer, startOffset, endContainer, endOffset } = req.body);
+	const highlights = req.body;
 	Highlight.create(highlights)
 		.then((highlight) => {
 			return User.findByPk(userId).then((user) => {
@@ -40,7 +100,26 @@ router.route("/user/:userId").post((req, res) => {
 		})
 		.catch((err) => {
 			console.error(err);
-			res.status(500).json({ message: "하이라이트 쓰기 실패", data: null });
+			res.status(500).json({ message: "하이라이트 쓰기 실패", data: [] });
+		});
+});
+
+// 메모 삽입 api
+router.route("/user/:userId/memo").post((req, res) => {
+	// const userId = req.params.userId;
+	const { highlightId, memo } = req.body;
+	Highlight.findByPk(highlightId)
+		.then((highlight) => {
+			console.log("highlight", req.body);
+			highlight.memo = memo;
+			return highlight.save();
+		})
+		.then((result) => {
+			res.json({ message: "메모 삽입 성공", data: result });
+		})
+		.catch((err) => {
+			console.error(err);
+			res.status(500).json({ message: "메모 삽입 실패", data: null });
 		});
 });
 
@@ -131,19 +210,19 @@ router.route("/").post((req, res) => {
 });
 
 // READ (전체 highlight 조회_우선 num으로 조회)
-router.route("/").get(async (req, res) => {
-	const num = req.query.num;
-	try {
-		const highlight = await Highlight.findAll({
-			where: {
-				num: { [Op.like]: `%${num}%` },
-			},
-		});
-		res.json({ message: "Highlight 조회 성공", data: highlight });
-	} catch (err) {
-		console.error(err);
-		res.status(500).json({ message: "Highlight 조회 실패", data: [] });
-	}
-});
+// router.route("/").get(async (req, res) => {
+// 	const num = req.query.num;
+// 	try {
+// 		const highlight = await Highlight.findAll({
+// 			where: {
+// 				num: { [Op.like]: `%${num}%` },
+// 			},
+// 		});
+// 		res.json({ message: "Highlight 조회 성공", data: highlight });
+// 	} catch (err) {
+// 		console.error(err);
+// 		res.status(500).json({ message: "Highlight 조회 실패", data: [] });
+// 	}
+// });
 
 module.exports = router;

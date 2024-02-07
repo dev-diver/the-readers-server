@@ -8,6 +8,10 @@ const initTranslationModel = (sequelize, DataTypes) => {
 				type: DataTypes.STRING,
 				allowNull: false,
 			},
+			startContainer: {
+				type: DataTypes.STRING,
+				allowNull: false,
+			},
 		},
 		{ sequelize, timestamps: false, underscored: false, paranoid: true, charset: "utf8", collate: "utf8_general_ci" }
 	);

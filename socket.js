@@ -1,5 +1,5 @@
 const { Server } = require("socket.io");
-const { userJoin, userChange, getRoomUsers, userLeave } = require("./utils/user");
+const { userJoin, getRoomUsers, userLeave } = require("./utils/user");
 
 module.exports = (server) => {
 	const io = new Server(server, {
@@ -46,8 +46,18 @@ module.exports = (server) => {
 			}
 		});
 
-		socket.on("requestAttention", (data) => {
-			socket.broadcast.emit("receiveAttention", data);
+		socket.on("request-attention", (data) => {
+			socket.broadcast.emit("receive-attention", data);
+		});
+
+		socket.on("request-attention-scroll", (data) => {
+			console.log("request-attention-scroll", data);
+			socket.broadcast.emit("receive-attention-scroll", data);
+		});
+
+		socket.on("request-attention-book", (data) => {
+			console.log("request-attention-book", data);
+			socket.broadcast.emit("receive-attention-book", data);
 		});
 
 		//pointer
@@ -65,11 +75,43 @@ module.exports = (server) => {
 			io.emit("update-pointer", pointerData);
 		});
 
+		//canvas
+
 		socket.on("drawing", (data) => {
 			console.log("roomId", data.location.roomId);
 			if (data) {
 				io.to(data.location.roomId).emit("canvasImage", data);
 			}
+		});
+
+		//highlight
+
+		socket.on("insert-highlight", (data) => {
+			console.log("insert-highlight", data);
+			socket.broadcast.to(data.roomId).emit("draw-highlight", data);
+		});
+
+		socket.on("delete-highlight", (data) => {
+			console.log("delete-highlight", data);
+			socket.broadcast.to(data.roomId).emit("erase-highlight", data);
+		});
+
+		// video chat
+
+		socket.on("rtc_start", (room) => {
+			socket.to(room).emit("rtc_start", room);
+		});
+
+		socket.on("offer", ({ offer, room }) => {
+			socket.to(room).emit("offer", { offer, room });
+		});
+
+		socket.on("answer", ({ answer, room }) => {
+			socket.to(room).emit("answer", { answer, room });
+		});
+
+		socket.on("candidate", ({ candidate, room }) => {
+			socket.to(room).emit("candidate", candidate);
 		});
 	});
 	return io;

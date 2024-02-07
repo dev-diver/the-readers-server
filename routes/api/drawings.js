@@ -1,3 +1,29 @@
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Drawing:
+ *       type: object
+ *       required:
+ *         - id
+ *         - bookId
+ *         - pageNum
+ *         - imageUrl
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: 그리기 고유 id
+ *         bookId:
+ *           type: integer
+ *           description: 책 고유 id
+ *         pageNum:
+ *           type: integer
+ *           description: 페이지 번호
+ *         imageUrl:
+ *            type: string
+ *            description: 이미지 url
+ */
+
 var express = require("express");
 var router = express.Router();
 const { Op } = require("sequelize");
