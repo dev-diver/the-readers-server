@@ -26,10 +26,12 @@ router
 	.route("/")
 	// Create (외부 링크 생성)
 	.post(async (req, res) => {
-		const { url } = req.body;
+		const { highlightId, OuterLink, note } = req.body;
 		try {
 			const outerlink = await Outerlinks.create({
-				url,
+				highlightId: highlightId,
+				url: OuterLink,
+				note: note,
 			});
 			res.status(201).json({ message: "외부 링크 생성 성공", data: outerlink });
 		} catch (error) {
@@ -49,11 +51,12 @@ router
 	})
 	// Update (외부 링크 수정)
 	.put(async (req, res) => {
-		const { id, url } = req.body;
+		const { id, url, note } = req.body;
 		const outerlink = await Outerlinks.findByPk(id);
 		try {
 			if (outerlink) {
 				outerlink.url = url;
+				outerlink.note = note;
 				await outerlink.save();
 				res.json({ message: "외부 링크 수정 성공", data: outerlink });
 			} else {

@@ -32,6 +32,10 @@ const initHighlightModel = (sequelize, DataTypes) => {
 				type: DataTypes.INTEGER,
 				allowNull: false,
 			},
+			memo: {
+				type: DataTypes.STRING,
+				allowNull: true,
+			},
 		},
 		{
 			sequelize,
