@@ -78,7 +78,6 @@ module.exports = (server) => {
 		//canvas
 
 		socket.on("drawing", (data) => {
-			console.log("roomId", data.location.roomId);
 			if (data) {
 				io.to(data.location.roomId).emit("canvasImage", data);
 			}
