@@ -45,12 +45,13 @@ const { Op } = require("sequelize");
 const Book = require("../../models/book");
 const User = require("../../models/user");
 const Highlight = require("../../models/highlight");
+const book = require("../../models/book");
 
 // READ (전체 highlight 조회_우선 bookId로 조회)
 router.route("/book/:bookId").get(async (req, res) => {
 	const bookId = req.params.bookId;
 	try {
-		console.log("통신");
+		console.log("통신", bookId);
 		const highlight = await Highlight.findAll({
 			where: {
 				bookId: { [Op.like]: `%${bookId}%` },
