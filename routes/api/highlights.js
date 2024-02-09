@@ -107,9 +107,9 @@ router.route("/user/:userId").post((req, res) => {
 
 // 메모 삽입 api
 router.route("/user/:userId/memo").post((req, res) => {
-	// const userId = req.params.userId;
-	const { highlightId, memo } = req.body;
-	Highlight.findByPk(highlightId)
+	const userId = req.params.userId;
+	const { highlightId, memo, highlightInfo } = req.body;
+	Highlight.create(req.body)
 		.then((highlight) => {
 			console.log("highlight", req.body);
 			highlight.memo = memo;
