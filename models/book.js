@@ -9,7 +9,7 @@ const initBookModel = (sequelize, DataTypes) => {
 				allowNull: false,
 				unique: true,
 			},
-			url: {
+			urlName: {
 				type: DataTypes.STRING,
 				allowNull: false,
 			},
