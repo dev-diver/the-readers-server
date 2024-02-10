@@ -66,7 +66,7 @@ const initHighlightModel = (sequelize, DataTypes) => {
 	// 	.catch((error) => {
 	// 		console.error("Error creating Highlight table", error);
 	// 	});
-	Highlight.sync({ alter: true });
+	// Highlight.sync({ alter: true });
 
 	return Highlight;
 };
