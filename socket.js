@@ -61,16 +61,18 @@ module.exports = (server) => {
 
 		//pointer
 		socket.on("move-pointer", (data) => {
-			console.log("data", data);
+			let color = colors[data.user.id % colors.length];
+			// console.log("color", color);
 			// 커서 위치와 클라이언트 ID 매핑
 			const pointerData = {
-				id: data.userId,
-				color: colors[data.userId % colors.length], // 색상 추가
+				user: data.user,
+				color: colors[data.user.id % colors.length], // 색상 추가
 				bookId: data.bookId,
 				pageNum: data.pageNum,
 				x: data.x,
 				y: data.y,
 			};
+			// console.log("data", pointerData);
 			io.emit("update-pointer", pointerData);
 		});
 
