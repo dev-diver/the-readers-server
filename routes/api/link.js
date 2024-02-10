@@ -70,6 +70,8 @@ router
 	.route("/")
 	// Create (하이라이트끼리 링크로 연결)
 	.post(async (req, res) => {
+		console.log("ㄱ미진태");
+		console.log("받은 것", req.body);
 		const { fromHighlightId, toHighlightId, note } = req.body;
 		// 필수 필드 검증
 		if (!fromHighlightId || !toHighlightId) {
@@ -132,5 +134,18 @@ router
 			res.status(500).json({ message: "링크 삭제 실패", data: [] });
 		}
 	});
+
+router.route("/${fromHighlightId}").get(async (req, res) => {
+	const fromHighlightId = req.params.fromHighlightId;
+	const links = await Link.findAll({
+		where: { fromHighlightId: fromHighlightId },
+	});
+	try {
+		res.json({ message: "링크 없음.", data: links });
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ message: "링크 있음.", data: [] });
+	}
+});
 
 module.exports = router;

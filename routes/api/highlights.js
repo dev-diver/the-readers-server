@@ -45,17 +45,19 @@ const { Op } = require("sequelize");
 const Book = require("../../models/book");
 const User = require("../../models/user");
 const Highlight = require("../../models/highlight");
+const book = require("../../models/book");
 
 // READ (전체 highlight 조회_우선 bookId로 조회)
 router.route("/book/:bookId").get(async (req, res) => {
 	const bookId = req.params.bookId;
 	try {
-		console.log("통신");
+		console.log("통신", bookId);
 		const highlight = await Highlight.findAll({
 			where: {
 				bookId: { [Op.like]: `%${bookId}%` },
 			},
 		});
+		console.log("highlight", highlight);
 		res.json({ message: "Highlight 조회 성공", data: highlight });
 	} catch (err) {
 		console.error(err);
@@ -87,7 +89,6 @@ router.get("/user/:userId/book/:bookId/page/:pageNum", (req, res) => {
 
 router.route("/user/:userId").post((req, res) => {
 	const userId = req.params.userId;
-	// const highlights = ({ bookId, pageNum, text, startContainer, startOffset, endContainer, endOffset } = req.body);
 	const highlights = req.body;
 	Highlight.create(highlights)
 		.then((highlight) => {
@@ -104,22 +105,21 @@ router.route("/user/:userId").post((req, res) => {
 		});
 });
 
-// 메모 삽입 api
-router.route("/user/:userId/memo").post((req, res) => {
-	// const userId = req.params.userId;
+// 하이라이트 아이디를 기반으로 메모 추가
+router.route("/user/:userId/memo").put((req, res) => {
+	const userId = req.params.userId;
 	const { highlightId, memo } = req.body;
 	Highlight.findByPk(highlightId)
 		.then((highlight) => {
-			// console.log("highlight", req.body);
 			highlight.memo = memo;
 			return highlight.save();
 		})
 		.then((result) => {
-			res.json({ message: "메모 삽입 성공", data: result });
+			res.json({ message: "메모 추가 성공", data: result });
 		})
 		.catch((err) => {
 			console.error(err);
-			res.status(500).json({ message: "메모 삽입 실패", data: null });
+			res.status(500).json({ message: "메모 추가 실패", data: null });
 		});
 });
 
@@ -187,18 +187,6 @@ router
 
 // Create (highlight 생성)
 router.route("/").post((req, res) => {
-	// console.log(req.body);
-	// const { num, bookId, pageNum, text, startContainer, endContainer, startOffset, endOffset } = req.body;
-	// Highlight.create({
-	// 	num: num,
-	// 	bookId: bookId,
-	// 	pageNum: pageNum,
-	// 	text: text,
-	// 	startContainer: startContainer,
-	// 	endContainer: endContainer,
-	// 	startOffset: startOffset,
-	// 	endOffset: endOffset,
-	// })
 	Highlight.create(req.body)
 		.then((highlight) => {
 			res.json({ message: "하이라이트 저장", data: highlight });
