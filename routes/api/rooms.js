@@ -277,6 +277,7 @@ router.route("/:roomId/books").post(async (req, res) => {
 router
 	.route("/:id")
 	.get((req, res) => {
+		console.log("방 조회중!!");
 		Room.findOne({
 			where: { id: req.params.id },
 			include: [
