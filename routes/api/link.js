@@ -135,4 +135,17 @@ router
 		}
 	});
 
+router.route("/${fromHighlightId}").get(async (req, res) => {
+	const fromHighlightId = req.params.fromHighlightId;
+	const links = await Link.findAll({
+		where: { fromHighlightId: fromHighlightId },
+	});
+	try {
+		res.json({ message: "링크 없음.", data: links });
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ message: "링크 있음.", data: [] });
+	}
+});
+
 module.exports = router;
