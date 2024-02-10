@@ -78,7 +78,7 @@ router.get("/user/:userId/book/:bookId/page/:pageNum", (req, res) => {
 		where: { bookId: bookId },
 	})
 		.then((highlights) => {
-			console.log(highlights);
+			// console.log(highlights);
 			res.json(highlights);
 		})
 		.catch((err) => {

@@ -251,25 +251,14 @@ router.route("/:roomId/books/:bookId").post((req, res) => {
 		});
 });
 //book 업로드 후 room에 추가
-router.route("/:roomId/books").post(upload.single("file"), async (req, res) => {
-	const file = req.file;
-	const fileName = req.body.fileName;
-	const roomId = req.params.roomId;
-	console.log(file.originalname, file.path);
-	const uploadParams = {
-		Bucket: BUCKET_NAME,
-		Key: `pdfs/${file.originalname}`,
-		Body: fs.createReadStream(file.path),
-	};
+router.route("/:roomId/books").post(async (req, res) => {
+	const { roomId } = req.params;
+	const { title, location, fileName } = req.body;
 
-	s3Upload(uploadParams)
-		.promise()
-		.then((data) => {
-			return Book.create({
-				name: fileName,
-				url: data.Location,
-			});
-		})
+	Book.create({
+		name: title,
+		urlName: fileName,
+	})
 		.then((book) => {
 			return Room.findByPk(roomId).then((room) => {
 				return room.addBook(book);
@@ -288,6 +277,7 @@ router.route("/:roomId/books").post(upload.single("file"), async (req, res) => {
 router
 	.route("/:id")
 	.get((req, res) => {
+		console.log("방 조회중!!");
 		Room.findOne({
 			where: { id: req.params.id },
 			include: [

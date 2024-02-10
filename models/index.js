@@ -24,7 +24,7 @@ Object.keys(db).forEach((modelName) => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 // DB 리셋할때 활용
-// db.sequelize.sync({ force: true }).then(() => {
+// db.sequelize.sync({ alter: true }).then(() => {
 // 	console.log("DB 리셋 완료");
 // });
 

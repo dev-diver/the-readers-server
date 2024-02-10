@@ -1,20 +1,24 @@
-let users = [];
+let roomUsers = [];
 
 // Join user to chat
-const userJoin = (socketId, userId, userName, roomId) => {
-	const existingUser = users.find((user) => user.userId === userId);
+const userJoin = (socketId, user, roomId) => {
+	const existingUser = roomUsers.find((roomUser) => roomUser.id === user.id);
 
 	if (!existingUser) {
-		const user = { socketId, userId, userName, roomId };
-		users.push(user);
-		return user;
+		const roomUser = {
+			...user,
+			socketId,
+			roomId,
+		};
+		roomUsers.push(roomUser);
+		return roomUser;
 	} else {
 		return existingUser;
 	}
 };
 
 const userChange = (newUser) => {
-	users = users.map((user) => {
+	roomUsers = roomUsers.map((user) => {
 		if (user.userId === newUser.userId) {
 			return newUser; // userId가 일치하면 newUser로 변경
 		}
@@ -24,10 +28,10 @@ const userChange = (newUser) => {
 
 // User leaves chat
 const userLeave = (socketId) => {
-	const index = users.findIndex((user) => user.socketId === socketId);
+	const index = roomUsers.findIndex((user) => user.socketId === socketId);
 	console.log("userLeave index:", index);
 	if (index !== -1) {
-		const result = users.splice(index, 1)[0];
+		const result = roomUsers.splice(index, 1)[0];
 		return result;
 	}
 };
@@ -35,7 +39,7 @@ const userLeave = (socketId) => {
 //get users
 const getRoomUsers = (roomId) => {
 	const RoomUsers = [];
-	users.map((user) => {
+	roomUsers.map((user) => {
 		if (user.roomId == roomId) {
 			RoomUsers.push(user);
 		}
