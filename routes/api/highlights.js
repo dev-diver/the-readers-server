@@ -76,7 +76,7 @@ router.get("/user/:userId/book/:bookId/page/:pageNum", (req, res) => {
 		where: { bookId: bookId },
 	})
 		.then((highlights) => {
-			console.log(highlights);
+			// console.log(highlights);
 			res.json(highlights);
 		})
 		.catch((err) => {
@@ -110,7 +110,7 @@ router.route("/user/:userId/memo").post((req, res) => {
 	const { highlightId, memo } = req.body;
 	Highlight.findByPk(highlightId)
 		.then((highlight) => {
-			console.log("highlight", req.body);
+			// console.log("highlight", req.body);
 			highlight.memo = memo;
 			return highlight.save();
 		})

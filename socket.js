@@ -14,19 +14,18 @@ module.exports = (server) => {
 
 	io.on("connection", (socket) => {
 		socket.on("room-joined", (userdata) => {
-			if (userdata.userId) {
-				const { userId, userName, roomId } = userdata;
-				userRoom = roomId;
-				const roomUser = userJoin(socket.id, userId, userName, roomId);
-				const roomUsers = getRoomUsers(roomUser.roomId);
+			const { roomId, user } = userdata;
+			if (user.id) {
+				const roomUser = userJoin(socket.id, user, roomId);
 				socket.join(roomUser.roomId);
-
+				const roomUsers = getRoomUsers(roomUser.roomId);
+				console.log("roomUsers", roomUsers);
 				socket.broadcast.to(roomUser.roomId).emit("message", {
-					message: `${roomUser.userName} 님이 입장하셨습니다.`,
+					message: `${roomUser.nick} 님이 입장하셨습니다.`,
 				});
-				console.log(`${roomUser.userName} 님이 입장하셨습니다.`, roomUser);
+				console.log(`${roomUser.nick} 님이 입장하셨습니다.`, roomUser);
 				console.log("roomJoined:", roomUsers);
-				io.to(roomUser.roomId).emit("room-users-changed", roomUsers);
+				io.to(roomUser.roomId).emit("room-users-changed", { roomUsers: roomUsers });
 			}
 		});
 
@@ -38,9 +37,9 @@ module.exports = (server) => {
 			if (userLeaves) {
 				const roomUsers = getRoomUsers(userLeaves.roomId);
 				io.to(userLeaves.roomId).emit("message", {
-					message: `${userLeaves.userName} 님이 떠났습니다.`,
+					message: `${userLeaves.nick} 님이 떠났습니다.`,
 				});
-				console.log(`${userLeaves.userName} 님이 떠났습니다.`, userLeaves);
+				console.log(`${userLeaves.nick} 님이 떠났습니다.`, userLeaves);
 				console.log("roomLeaved:", roomUsers);
 				io.to(userLeaves.roomId).emit("room-users-changed", roomUsers);
 			}

@@ -8,3 +8,4 @@ uploads/
 sql_docker/data
 sql_docker/initdb.d
 package-lock.json
+nodemon.json
