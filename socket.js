@@ -114,7 +114,7 @@ module.exports = (server) => {
 
 		// chart
 		socket.on("send-chart", (data) => {
-			// console.log("send-chart data", data);
+			console.log("send-chart data", data);
 			socket.broadcast.to(data.room).emit("update-chart", data);
 		});
 	});
