@@ -232,6 +232,7 @@ const fs = require("fs");
 const { s3Upload, BUCKET_NAME } = require("../../config/aws");
 const Room = require("../../models/room");
 const Book = require("../../models/book");
+const User = require("../../models/user");
 
 // CREATE (room에 book 추가)
 router.route("/:roomId/books/:bookId").post((req, res) => {
@@ -374,16 +375,20 @@ router
 	// Create (room 생성)
 	.post((req, res) => {
 		// 데이터 추출
-		const { roomName, maxParticipants, bookFile } = req.body;
+		const { roomName, maxParticipants, user } = req.body;
 		//데이터 검증
-		if (!roomName || !maxParticipants) {
-			return res.json({ message: "데이터를 정확하게 추가하세요.", data: {} });
+		if (!roomName || !maxParticipants || !user) {
+			return res.status(500).json({ message: "데이터를 정확하게 추가하세요.", data: {} });
 		}
 
 		// Room 모델을 사용하여 데이터베이스에 새 방을 생성
-		Room.create({ title: roomName, usermax: maxParticipants, bookFile: bookFile })
+		Room.create({ title: roomName, usermax: maxParticipants })
 			.then((room) => {
-				res.json({ message: "방 생성 성공", data: room });
+				//유저와 방 연결
+				return User.findByPk(user.id).then((user) => {
+					user.addRoom(room);
+					return res.json({ message: "방 생성 성공", data: room });
+				});
 			})
 			.catch((err) => {
 				console.error(err);

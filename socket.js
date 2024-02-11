@@ -78,9 +78,9 @@ module.exports = (server) => {
 
 		//canvas
 
-		socket.on("drawing", (data) => {
+		socket.on("draw-canvas", (data) => {
 			if (data) {
-				io.to(data.location.roomId).emit("canvasImage", data);
+				io.to(data.location.roomId).emit("share-canvas", data);
 			}
 		});
 
