@@ -108,6 +108,7 @@ router.route("/user/:userId").post((req, res) => {
 router.route("/user/:userId/memo").put((req, res) => {
 	const userId = req.params.userId;
 	const { highlightId, memo } = req.body;
+	console.log(highlightId, memo);
 	Highlight.findByPk(highlightId)
 		.then((highlight) => {
 			highlight.memo = memo;
