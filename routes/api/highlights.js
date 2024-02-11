@@ -45,7 +45,6 @@ const { Op } = require("sequelize");
 const Book = require("../../models/book");
 const User = require("../../models/user");
 const Highlight = require("../../models/highlight");
-const book = require("../../models/book");
 
 // READ (전체 highlight 조회_우선 bookId로 조회)
 router.route("/book/:bookId").get(async (req, res) => {
