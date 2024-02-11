@@ -1,5 +1,4 @@
 let roomUsers = [];
-
 // Join user to chat
 const userJoin = (socketId, user, roomId) => {
 	const existingUser = roomUsers.find((roomUser) => roomUser.id === user.id);
@@ -18,18 +17,26 @@ const userJoin = (socketId, user, roomId) => {
 };
 
 const userChange = (newUser) => {
-	roomUsers = roomUsers.map((user) => {
-		if (user.userId === newUser.userId) {
-			return newUser; // userId가 일치하면 newUser로 변경
-		}
-		return user; // 그렇지 않으면 기존 사용자를 반환
-	});
+	const index = roomUsers.findIndex((user) => user.userId === newUser.userId);
+	if (index !== -1) {
+		// 일치하는 userId가 있는 경우
+		roomUsers[index] = newUser; // 해당 인덱스의 사용자를 newUser로 업데이트
+	}
 };
 
 // User leaves chat
 const userLeave = (socketId) => {
 	const index = roomUsers.findIndex((user) => user.socketId === socketId);
-	console.log("userLeave index:", index);
+	console.log("userLeave index:", socketId, index);
+	if (index !== -1) {
+		const result = roomUsers.splice(index, 1)[0];
+		return result;
+	}
+};
+
+const userLeaveById = (userId) => {
+	const index = roomUsers.findIndex((user) => user.id === userId);
+	console.log("userLeave ID index:", userId, index);
 	if (index !== -1) {
 		const result = roomUsers.splice(index, 1)[0];
 		return result;
@@ -52,5 +59,6 @@ module.exports = {
 	userJoin,
 	userChange,
 	userLeave,
+	userLeaveById,
 	getRoomUsers,
 };
