@@ -111,6 +111,12 @@ module.exports = (server) => {
 		socket.on("candidate", ({ candidate, room }) => {
 			socket.to(room).emit("candidate", candidate);
 		});
+
+		// chart
+		socket.on("send-chart", (data) => {
+			// console.log("send-chart data", data);
+			socket.broadcast.to(data.room).emit("update-chart", data);
+		});
 	});
 	return io;
 };
