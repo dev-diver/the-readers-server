@@ -1,5 +1,5 @@
 const { Server } = require("socket.io");
-const { userJoin, getRoomUsers, userLeave } = require("./utils/user");
+const { userJoin, getRoomUsers, userLeave, userLeaveById } = require("./utils/user");
 
 module.exports = (server) => {
 	const io = new Server(server, {
@@ -13,8 +13,8 @@ module.exports = (server) => {
 	const colors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]; // 색상 배열
 
 	io.on("connection", (socket) => {
-		socket.on("room-joined", (userdata) => {
-			const { roomId, user } = userdata;
+		socket.on("room-joined", (data) => {
+			const { roomId, user } = data;
 			if (user.id) {
 				const roomUser = userJoin(socket.id, user, roomId);
 				socket.join(roomUser.roomId);
@@ -26,6 +26,24 @@ module.exports = (server) => {
 				console.log(`${roomUser.nick} 님이 입장하셨습니다.`, roomUser);
 				console.log("roomJoined:", roomUsers);
 				io.to(roomUser.roomId).emit("room-users-changed", { roomUsers: roomUsers });
+			}
+		});
+
+		socket.on("room-leaved", (roomUser) => {
+			if (!roomUser) {
+				return;
+			}
+			const user = roomUser.user;
+			const userLeaves = userLeaveById(user.id);
+			if (userLeaves) {
+				const roomUsers = getRoomUsers(userLeaves.roomId);
+				socket.leave(userLeaves.roomId);
+				io.to(userLeaves.roomId).emit("message", {
+					message: `${userLeaves.nick} 님이 떠났습니다.`,
+				});
+				console.log(`${userLeaves.nick} 님이 떠났습니다.`, userLeaves);
+				console.log("roomLeaved:", roomUsers);
+				io.to(userLeaves.roomId).emit("room-users-changed", roomUsers);
 			}
 		});
 
@@ -61,24 +79,26 @@ module.exports = (server) => {
 
 		//pointer
 		socket.on("move-pointer", (data) => {
-			console.log("data", data);
+			let color = colors[data.user.id % colors.length];
+			// console.log("color", color);
 			// 커서 위치와 클라이언트 ID 매핑
 			const pointerData = {
-				id: data.userId,
-				color: colors[data.userId % colors.length], // 색상 추가
+				user: data.user,
+				color: colors[data.user.id % colors.length], // 색상 추가
 				bookId: data.bookId,
 				pageNum: data.pageNum,
 				x: data.x,
 				y: data.y,
 			};
+			// console.log("data", pointerData);
 			io.emit("update-pointer", pointerData);
 		});
 
 		//canvas
 
-		socket.on("drawing", (data) => {
+		socket.on("draw-canvas", (data) => {
 			if (data) {
-				io.to(data.location.roomId).emit("canvasImage", data);
+				io.to(data.location.roomId).emit("share-canvas", data);
 			}
 		});
 
