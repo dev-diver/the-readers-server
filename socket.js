@@ -134,8 +134,13 @@ module.exports = (server) => {
 
 		// chart
 		socket.on("send-chart", (data) => {
-			console.log("send-chart data", data);
+			// console.log("send-chart data", data);
 			socket.broadcast.to(data.room).emit("update-chart", data);
+		});
+
+		socket.on("current-user-position", (data) => {
+			console.log("current-user-position", data);
+			io.to(data.room).emit("other-user-position", data);
 		});
 	});
 	return io;
