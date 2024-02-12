@@ -4,7 +4,7 @@ const initDrawingModel = (sequelize, DataTypes) => {
 	const Drawing = sequelize.define(
 		"Drawing",
 		{
-			imageUrl: {
+			urlName: {
 				type: DataTypes.STRING,
 				allowNull: false,
 			},
