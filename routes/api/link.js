@@ -70,7 +70,6 @@ router
 	.route("/")
 	// Create (하이라이트끼리 링크로 연결)
 	.post(async (req, res) => {
-		console.log("ㄱ미진태");
 		console.log("받은 것", req.body);
 		const { fromHighlightId, toHighlightId, note } = req.body;
 		// 필수 필드 검증
@@ -145,6 +144,30 @@ router.route("/${fromHighlightId}").get(async (req, res) => {
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({ message: "링크 있음.", data: [] });
+	}
+});
+
+// 여러 하이라이트가 선택됐을 때 처리
+router.route("/many").post(async (req, res) => {
+	try {
+		// Assuming req.body.links is an array of objects { fromHighlightId, toHighlightId, note }
+		if (!req.body.links || !Array.isArray(req.body.links)) {
+			return res.status(400).json({ message: "Invalid input format, expected an array of links." });
+		}
+
+		// Validate each link object in the array
+		const isValid = req.body.links.every((link) => link.fromHighlightId && link.toHighlightId);
+
+		if (!isValid) {
+			return res.status(400).json({ message: "One or more links missing required fields." });
+		}
+
+		// Create multiple links
+		const createdLinks = await Link.bulkCreate(req.body.links);
+		res.status(201).json({ message: "Links successfully created", data: createdLinks });
+	} catch (error) {
+		console.error("Error creating multiple links: ", error);
+		res.status(500).json({ message: "Server error while creating links", error: error.message });
 	}
 });
 
