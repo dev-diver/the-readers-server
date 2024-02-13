@@ -134,16 +134,20 @@ router
 		}
 	});
 
-router.route("/${fromHighlightId}").get(async (req, res) => {
+router.get("/:fromHighlightId", async (req, res) => {
 	const fromHighlightId = req.params.fromHighlightId;
-	const links = await Link.findAll({
-		where: { fromHighlightId: fromHighlightId },
-	});
 	try {
-		res.json({ message: "링크 없음.", data: links });
+		const links = await Link.findAll({
+			where: { fromHighlightId: fromHighlightId },
+		});
+		if (links && links.length > 0) {
+			res.json({ message: "링크 찾음", data: links });
+		} else {
+			res.json({ message: "링크 없음", data: [] });
+		}
 	} catch (error) {
-		console.log(error);
-		res.status(500).json({ message: "링크 있음.", data: [] });
+		console.error(error);
+		res.status(500).json({ message: "서버 오류", data: [] });
 	}
 });
 
