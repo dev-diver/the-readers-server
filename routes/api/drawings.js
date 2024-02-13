@@ -52,7 +52,7 @@ router
 		})
 			.then((drawings) => {
 				if (drawings.length <= 0) {
-					return res.status(500).json({ message: "Drawing not found", data: null });
+					return res.status(404).json({ message: "Drawing not found", data: null });
 				}
 				const Key = `drawings/${urlName}.${fileExtension}`;
 				const params = {

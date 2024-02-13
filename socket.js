@@ -43,7 +43,7 @@ module.exports = (server) => {
 				});
 				console.log(`${userLeaves.nick} 님이 떠났습니다.`, userLeaves);
 				console.log("roomLeaved:", roomUsers);
-				io.to(userLeaves.roomId).emit("room-users-changed", roomUsers);
+				io.to(userLeaves.roomId).emit("room-users-changed", { roomUsers: roomUsers });
 			}
 		});
 
@@ -57,7 +57,7 @@ module.exports = (server) => {
 				});
 				console.log(`${userLeaves.nick} 님이 떠났습니다.`, userLeaves);
 				console.log("roomLeaved:", roomUsers);
-				io.to(userLeaves.roomId).emit("room-users-changed", roomUsers);
+				io.to(userLeaves.roomId).emit("room-users-changed", { roomUsers: roomUsers });
 			}
 		});
 
