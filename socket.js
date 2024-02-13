@@ -104,12 +104,20 @@ module.exports = (server) => {
 
 		socket.on("insert-highlight", (data) => {
 			console.log("insert-highlight", data);
-			socket.broadcast.to(data.roomId).emit("draw-highlight", data);
+			const roomId = Array.from(socket.rooms).find((r) => r !== socket.id); // socket.id를 제외한 첫 번째 방 ID를 찾음
+			if (roomId) {
+				console.log(roomId);
+				socket.broadcast.to(roomId).emit("draw-highlight", data); // 해당 방에 메시지 전송
+			}
 		});
 
 		socket.on("delete-highlight", (data) => {
 			console.log("delete-highlight", data);
-			socket.broadcast.to(data.roomId).emit("erase-highlight", data);
+			const roomId = Array.from(socket.rooms).find((r) => r !== socket.id); // socket.id를 제외한 첫 번째 방 ID를 찾음
+			if (roomId) {
+				console.log(roomId);
+				socket.broadcast.to(roomId).emit("erase-highlight", data);
+			}
 		});
 
 		// video chat
