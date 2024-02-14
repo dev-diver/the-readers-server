@@ -386,8 +386,9 @@ router
 			.then((room) => {
 				//유저와 방 연결
 				return User.findByPk(user.id).then((user) => {
-					user.addRoom(room);
-					return res.json({ message: "방 생성 성공", data: room });
+					return user.addRoom(room).then((response) => {
+						return res.json({ message: "방 생성 성공", data: room });
+					});
 				});
 			})
 			.catch((err) => {

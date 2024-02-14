@@ -55,9 +55,7 @@ module.exports = (server) => {
 
 		socket.on("disconnect", () => {
 			console.log("User disconnected");
-
 			const userLeaves = userLeave(socket.id);
-
 			if (userLeaves) {
 				const roomUsers = getRoomUsers(userLeaves.roomId);
 				io.to(userLeaves.roomId).emit("message", {
