@@ -51,7 +51,16 @@ module.exports = (server) => {
 			console.log(`${userLeaves.nick} 님이 떠났습니다.`, userLeaves);
 			console.log("roomLeaved:", roomUsers);
 			broadcastToRoomIncludeMe("room-users-changed", { roomUsers: roomUsers }, userLeaves.roomId);
-			// io.to(userLeaves.roomId).emit("room-users-changed", { roomUsers: roomUsers });
+			broadcastToRoomExceptMe(
+				"other-user-position",
+				{
+					scroll: -10,
+					user: user,
+					room: userLeaves.roomId,
+					flag: 1,
+				},
+				userLeaves.roomId
+			);
 		};
 
 		socket.on("room-leaved", (roomUser) => {
@@ -136,7 +145,13 @@ module.exports = (server) => {
 		// chart
 		socket.on("send-chart", (data) => {
 			// console.log("send-chart data", data);
-			socket.broadcast.to(data.room).emit("update-chart", data);
+			broadcastToRoomExceptMe("update-chart", data);
+			// socket.broadcast.to(data.room).emit("update-chart", data);
+		});
+
+		socket.on("current-user-position", (data) => {
+			console.log("current-user-position", data);
+			broadcastToRoomExceptMe("other-user-position", data);
 		});
 	});
 	return io;
