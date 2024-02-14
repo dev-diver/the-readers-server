@@ -13,6 +13,20 @@ module.exports = (server) => {
 	const colors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]; // 색상 배열
 
 	io.on("connection", (socket) => {
+		const broadcastToRoomExceptMe = (event, data, givenRoomId) => {
+			const roomId = givenRoomId || Array.from(socket.rooms).find((r) => r !== socket.id); // socket.id를 제외한 첫 번째 방 ID를 찾음
+			if (roomId) {
+				socket.to(roomId).emit(event, data);
+			}
+		};
+
+		const broadcastToRoomIncludeMe = (event, data, givenRoomId) => {
+			const roomId = givenRoomId || Array.from(socket.rooms).find((r) => r !== socket.id); // socket.id를 제외한 첫 번째 방 ID를 찾음
+			if (roomId) {
+				io.to(roomId).emit(event, data);
+			}
+		};
+
 		socket.on("room-joined", (data) => {
 			const { roomId, user } = data;
 			if (user.id) {
@@ -20,14 +34,25 @@ module.exports = (server) => {
 				socket.join(roomUser.roomId);
 				const roomUsers = getRoomUsers(roomUser.roomId);
 				console.log("roomUsers", roomUsers);
-				socket.broadcast.to(roomUser.roomId).emit("message", {
-					message: `${roomUser.nick} 님이 입장하셨습니다.`,
-				});
+				// socket.broadcast.to(roomUser.roomId).emit("message", {
+				// 	message: `${roomUser.nick} 님이 입장하셨습니다.`,
+				// });
+				broadcastToRoomExceptMe("message", { message: `${roomUser.nick} 님이 입장하셨습니다.` }, roomUser.roomId);
 				console.log(`${roomUser.nick} 님이 입장하셨습니다.`, roomUser);
 				console.log("roomJoined:", roomUsers);
-				io.to(roomUser.roomId).emit("room-users-changed", { roomUsers: roomUsers });
+				// io.to(roomUser.roomId).emit("room-users-changed", { roomUsers: roomUsers });
+				broadcastToRoomIncludeMe("room-users-changed", { roomUsers: roomUsers }, roomUser.roomId);
 			}
 		});
+
+		const handleAfterRoomLeaved = (userLeaves) => {
+			const roomUsers = getRoomUsers(userLeaves.roomId);
+			broadcastToRoomExceptMe("message", { message: `${userLeaves.nick} 님이 떠났습니다.` }, userLeaves.roomId);
+			console.log(`${userLeaves.nick} 님이 떠났습니다.`, userLeaves);
+			console.log("roomLeaved:", roomUsers);
+			broadcastToRoomIncludeMe("room-users-changed", { roomUsers: roomUsers }, userLeaves.roomId);
+			// io.to(userLeaves.roomId).emit("room-users-changed", { roomUsers: roomUsers });
+		};
 
 		socket.on("room-leaved", (roomUser) => {
 			if (!roomUser) {
@@ -36,14 +61,8 @@ module.exports = (server) => {
 			const user = roomUser.user;
 			const userLeaves = userLeaveById(user.id);
 			if (userLeaves) {
-				const roomUsers = getRoomUsers(userLeaves.roomId);
 				socket.leave(userLeaves.roomId);
-				io.to(userLeaves.roomId).emit("message", {
-					message: `${userLeaves.nick} 님이 떠났습니다.`,
-				});
-				console.log(`${userLeaves.nick} 님이 떠났습니다.`, userLeaves);
-				console.log("roomLeaved:", roomUsers);
-				io.to(userLeaves.roomId).emit("room-users-changed", { roomUsers: roomUsers });
+				handleAfterRoomLeaved(userLeaves);
 			}
 		});
 
@@ -51,35 +70,26 @@ module.exports = (server) => {
 			console.log("User disconnected");
 			const userLeaves = userLeave(socket.id);
 			if (userLeaves) {
-				const roomUsers = getRoomUsers(userLeaves.roomId);
-				io.to(userLeaves.roomId).emit("message", {
-					message: `${userLeaves.nick} 님이 떠났습니다.`,
-				});
-				console.log(`${userLeaves.nick} 님이 떠났습니다.`, userLeaves);
-				console.log("roomLeaved:", roomUsers);
-				io.to(userLeaves.roomId).emit("room-users-changed", { roomUsers: roomUsers });
+				handleAfterRoomLeaved(userLeaves);
 			}
 		});
 
 		socket.on("request-attention", (data) => {
-			socket.broadcast.emit("receive-attention", data);
+			broadcastToRoomExceptMe("receive-attention", data);
 		});
 
 		socket.on("request-attention-scroll", (data) => {
 			console.log("request-attention-scroll", data);
-			socket.broadcast.emit("receive-attention-scroll", data);
+			broadcastToRoomExceptMe("receive-attention-scroll", data);
 		});
 
 		socket.on("request-attention-book", (data) => {
 			console.log("request-attention-book", data);
-			socket.broadcast.emit("receive-attention-book", data);
+			broadcastToRoomExceptMe("receive-attention-book", data);
 		});
 
 		//pointer
 		socket.on("move-pointer", (data) => {
-			let color = colors[data.user.id % colors.length];
-			// console.log("color", color);
-			// 커서 위치와 클라이언트 ID 매핑
 			const pointerData = {
 				user: data.user,
 				color: colors[data.user.id % colors.length], // 색상 추가
@@ -88,40 +98,25 @@ module.exports = (server) => {
 				x: data.x,
 				y: data.y,
 			};
-			// console.log("data", pointerData);
-			io.emit("update-pointer", pointerData);
+			broadcastToRoomExceptMe("update-pointer", pointerData);
 		});
-
 		//canvas
-
 		socket.on("draw-canvas", (data) => {
-			if (data) {
-				io.to(data.location.roomId).emit("share-canvas", data);
-			}
+			// console.log("draw-canvas", data.user, data.location);
+			broadcastToRoomExceptMe("share-canvas", data);
 		});
-
 		//highlight
-
 		socket.on("insert-highlight", (data) => {
 			console.log("insert-highlight", data);
-			const roomId = Array.from(socket.rooms).find((r) => r !== socket.id); // socket.id를 제외한 첫 번째 방 ID를 찾음
-			if (roomId) {
-				console.log(roomId);
-				socket.broadcast.to(roomId).emit("draw-highlight", data); // 해당 방에 메시지 전송
-			}
+			broadcastToRoomExceptMe("draw-highlight", data);
 		});
 
 		socket.on("delete-highlight", (data) => {
 			console.log("delete-highlight", data);
-			const roomId = Array.from(socket.rooms).find((r) => r !== socket.id); // socket.id를 제외한 첫 번째 방 ID를 찾음
-			if (roomId) {
-				console.log(roomId);
-				socket.broadcast.to(roomId).emit("erase-highlight", data);
-			}
+			broadcastToRoomExceptMe("erase-highlight", data);
 		});
 
 		// video chat
-
 		socket.on("rtc_start", (room) => {
 			socket.to(room).emit("rtc_start", room);
 		});
