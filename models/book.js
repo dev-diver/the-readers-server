@@ -27,6 +27,7 @@ const initBookModel = (sequelize, DataTypes) => {
 	Book.associate = (models) => {
 		Book.belongsToMany(models.Room, { through: "Room_Book" });
 		Book.belongsToMany(models.User, { through: "User_Book" });
+		Book.belongsToMany(models.User, { through: "Chart" });
 
 		Book.hasMany(models.Highlight, { foreignKey: "bookId", sourceKey: "id" });
 	};
