@@ -45,21 +45,21 @@ module.exports = (server) => {
 			}
 		});
 
-		const handleAfterRoomLeaved = (userLeaves) => {
-			const roomUsers = getRoomUsers(userLeaves.roomId);
-			broadcastToRoomExceptMe("message", { message: `${userLeaves.nick} 님이 떠났습니다.` }, userLeaves.roomId);
-			console.log(`${userLeaves.nick} 님이 떠났습니다.`, userLeaves);
+		const handleAfterRoomLeaved = (roomUser) => {
+			const roomUsers = getRoomUsers(roomUser.roomId);
+			broadcastToRoomExceptMe("message", { message: `${roomUser.nick} 님이 떠났습니다.` }, roomUser.roomId);
+			console.log(`${roomUser.nick} 님이 떠났습니다.`, roomUser);
 			console.log("roomLeaved:", roomUsers);
-			broadcastToRoomIncludeMe("room-users-changed", { roomUsers: roomUsers }, userLeaves.roomId);
+			broadcastToRoomIncludeMe("room-users-changed", { roomUsers: roomUsers }, roomUser.roomId);
 			broadcastToRoomExceptMe(
 				"other-user-position",
 				{
 					scroll: -10,
-					user: user,
-					room: userLeaves.roomId,
+					user: roomUser,
+					room: roomUser.roomId,
 					flag: 1,
 				},
-				userLeaves.roomId
+				roomUser.roomId
 			);
 		};
 
@@ -107,11 +107,12 @@ module.exports = (server) => {
 				x: data.x,
 				y: data.y,
 			};
-			broadcastToRoomExceptMe("update-pointer", pointerData);
+			broadcastToRoomIncludeMe("update-pointer", pointerData);
 		});
+
 		//canvas
 		socket.on("draw-canvas", (data) => {
-			// console.log("draw-canvas", data.user, data.location);
+			// console.log("draw-canvas", data);
 			broadcastToRoomExceptMe("share-canvas", data);
 		});
 		//highlight
