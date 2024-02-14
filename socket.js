@@ -42,8 +42,14 @@ module.exports = (server) => {
 					message: `${userLeaves.nick} 님이 떠났습니다.`,
 				});
 				console.log(`${userLeaves.nick} 님이 떠났습니다.`, userLeaves);
-				console.log("roomLeaved:", roomUsers);
-				io.to(userLeaves.roomId).emit("room-users-changed", roomUsers);
+				console.log("남은 사람:", roomUsers);
+				io.to(userLeaves.roomId).emit("room-users-changed", { roomUsers: getRoomUsers });
+				io.to(userLeaves.roomId).emit("other-user-position", {
+					scroll: -10,
+					user: user,
+					room: userLeaves.roomId,
+					flag: 1,
+				});
 			}
 		});
 
@@ -57,7 +63,7 @@ module.exports = (server) => {
 				});
 				console.log(`${userLeaves.nick} 님이 떠났습니다.`, userLeaves);
 				console.log("roomLeaved:", roomUsers);
-				io.to(userLeaves.roomId).emit("room-users-changed", roomUsers);
+				io.to(userLeaves.roomId).emit("room-users-changed", { roomUsers: roomUsers });
 			}
 		});
 
@@ -134,6 +140,11 @@ module.exports = (server) => {
 		socket.on("send-chart", (data) => {
 			// console.log("send-chart data", data);
 			socket.broadcast.to(data.room).emit("update-chart", data);
+		});
+
+		socket.on("current-user-position", (data) => {
+			console.log("current-user-position", data);
+			io.to(data.room).emit("other-user-position", data);
 		});
 	});
 	return io;
