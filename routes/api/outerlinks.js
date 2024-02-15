@@ -84,4 +84,19 @@ router
 		}
 	});
 
+// Outerlink 조회 API (하이라이트 아이디 기반으로 조회)
+router.route("/:highlightId").get(async (req, res) => {
+	const highlightId = req.params.highlightId;
+	const outerlinks = await Outerlinks.findAll({
+		where: {
+			highlightId: highlightId,
+		},
+	});
+	try {
+		res.json({ message: "외부 링크 없음.", data: outerlinks });
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ message: "외부 링크 있음.", data: [] });
+	}
+});
 module.exports = router;
