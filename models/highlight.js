@@ -17,11 +17,11 @@ const initHighlightModel = (sequelize, DataTypes) => {
 				allowNull: false,
 			},
 			startContainer: {
-				type: DataTypes.STRING,
+				type: DataTypes.INTEGER,
 				allowNull: false,
 			},
 			endContainer: {
-				type: DataTypes.STRING,
+				type: DataTypes.INTEGER,
 				allowNull: false,
 			},
 			startOffset: {

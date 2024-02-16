@@ -45,14 +45,14 @@ router
 	.get((req, res) => {
 		const { bookId, pageNum, userId } = req.params;
 		const urlName = `${bookId}_${pageNum}_${userId}`;
-		const fileExtension = "png";
-		const contentType = `image/${fileExtension}`;
+		const fileExtension = "json";
+		const contentType = `application/${fileExtension}`;
 		Drawing.findAll({
 			where: { bookId: bookId, pageNum: pageNum, urlName: urlName },
 		})
 			.then((drawings) => {
 				if (drawings.length <= 0) {
-					return res.status(500).json({ message: "Drawing not found", data: null });
+					return res.status(404).json({ message: "Drawing not found", data: null });
 				}
 				const Key = `drawings/${urlName}.${fileExtension}`;
 				const params = {
@@ -78,7 +78,7 @@ router
 		console.log("upload start");
 		const { bookId, pageNum, userId } = req.params;
 		const file = req.file;
-		const fileExtension = ".png"; //path.extname(file.originalname);
+		const fileExtension = ".json"; //path.extname(file.originalname);
 		const urlName = `${bookId}_${pageNum}_${userId}`;
 		if (file) {
 			// console.log("File received: ", file);
