@@ -146,13 +146,13 @@ module.exports = (server) => {
 		// chart
 		socket.on("send-chart", (data) => {
 			// console.log("send-chart data", data);
-			broadcastToRoomExceptMe("update-chart", data);
+			broadcastToRoomExceptMe("update-chart", data); //얘도 따로 처리하는거 빼고 ㅑ
 			// socket.broadcast.to(data.room).emit("update-chart", data);
 		});
 
 		socket.on("current-user-position", (data) => {
 			console.log("current-user-position", data);
-			broadcastToRoomExceptMe("other-user-position", data);
+			broadcastToRoomIncludeMe("other-user-position", data);
 		});
 	});
 	return io;
