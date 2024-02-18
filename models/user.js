@@ -65,6 +65,7 @@ const initUserModel = (sequelize, DataTypes) => {
 		User.belongsToMany(models.Highlight, { through: "User_Highlight" });
 		User.belongsToMany(models.Translation, { through: "User_Translation" });
 		User.belongsToMany(models.Book, { through: "User_Book" });
+		User.belongsToMany(models.Drawing, { through: "User_Drawing" });
 	};
 
 	// User.sync({ alter: true });
