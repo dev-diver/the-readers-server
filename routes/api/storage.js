@@ -7,6 +7,26 @@ const path = require("path");
 const fs = require("fs");
 const { s3, s3Upload, BUCKET_NAME } = require("../../config/aws");
 
+router.get("/pdf/:urlName/cover", (req, res) => {
+	const { urlName } = req.params;
+
+	const params = {
+		Bucket: BUCKET_NAME,
+		Key: `pdfs/${urlName}/cover.jpg`,
+	};
+
+	s3.getObject(params, (err, data) => {
+		if (err) {
+			console.error("Error fetching from S3", err);
+			return res.status(500).send("Failed to fetch file");
+		}
+		console.log("이미지 찾음");
+		res.writeHead(200, { "Content-Type": "image/jpeg" });
+		res.write(data.Body);
+		res.end();
+	});
+});
+
 router.get("/pdf/:urlName/css", (req, res) => {
 	const { urlName } = req.params;
 
