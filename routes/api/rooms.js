@@ -254,11 +254,12 @@ router.route("/:roomId/books/:bookId").post((req, res) => {
 //book 업로드 후 room에 추가
 router.route("/:roomId/books").post(async (req, res) => {
 	const { roomId } = req.params;
-	const { title, location, fileName } = req.body;
+	const { title, totalPage, fileName } = req.body;
 
 	Book.create({
 		name: title,
 		urlName: fileName,
+		totalPage: totalPage,
 	})
 		.then((book) => {
 			return Room.findByPk(roomId).then((room) => {
