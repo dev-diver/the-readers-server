@@ -64,28 +64,109 @@ const express = require("express");
 const router = express.Router();
 const { Op } = require("sequelize");
 const Link = require("../../models/link"); // Link 모델 가져오기
+const Highlight = require("../../models/highlight"); // Highlight 모델 가져오기
+const User = require("../../models/user"); // User 모델 가져오기
 
 // Link 생성 API
 router
 	.route("/")
 	// Create (하이라이트끼리 링크로 연결)
 	.post(async (req, res) => {
-		console.log("받은 것", req.body);
-		const { fromHighlightId, toHighlightId, note } = req.body;
+		// console.log("받은 것", req.body);
+		// const { fromHighlightId, toHighlightId, note } = req.body;
+		// // 필수 필드 검증
+		// if (!fromHighlightId || !toHighlightId) {
+		// 	return res.status(400).json({ message: "필수 필드가 누락되었습니다." });
+		// }
+		// try {
+		// 	const link = await Link.create({
+		// 		fromHighlightId,
+		// 		toHighlightId,
+		// 		note,
+		// 	});
+		// 	res.status(201).json({ message: "하이라이트 연결 성공", data: link });
+		// } catch (error) {
+		// 	console.log(error);
+		// 	res.status(500).json({ message: "Link 생성 실패", error: error.message });
+		// }
+		const { userId, fromHighlightId, toHighlightId, note } = req.body;
 		// 필수 필드 검증
-		if (!fromHighlightId || !toHighlightId) {
+		if (!fromHighlightId || !toHighlightId || !userId) {
 			return res.status(400).json({ message: "필수 필드가 누락되었습니다." });
 		}
+
 		try {
-			const link = await Link.create({
+			// 원본 하이라이트 정보 조회
+			// const originalHighlight = await Highlight.findByPk(toHighlightId);
+			const originalHighlight = await Highlight.findByPk(toHighlightId, {
+				include: [
+					{
+						model: User, // User 모델을 include (User 모델과의 연결을 확인하는 설정 필요)
+					},
+				],
+			});
+			if (!originalHighlight) {
+				return res.status(404).json({ message: "원본 하이라이트를 찾을 수 없습니다." });
+			}
+
+			// 원본 하이라이트의 소유자 확인 (여러 소유자가 있을 수 있으므로 적절한 로직 적용 필요)
+			const isOwner = originalHighlight.Users.some((user) => user.id === userId);
+
+			let targetHighlightId = toHighlightId;
+			let highlightToConnect = originalHighlight;
+
+			if (!isOwner) {
+				// 원본 하이라이트의 정보를 복사하여 새 하이라이트 생성
+				const highlightCopy = await Highlight.create({
+					bookId: originalHighlight.bookId,
+					pageNum: originalHighlight.pageNum,
+					text: originalHighlight.text,
+					startContainer: originalHighlight.startContainer,
+					endContainer: originalHighlight.endContainer,
+					startOffset: originalHighlight.startOffset,
+					endOffset: originalHighlight.endOffset,
+					memo: originalHighlight.memo,
+					// 기타 필요한 필드가 있다면 여기에 추가
+				});
+				targetHighlightId = highlightCopy.id;
+				highlightToConnect = highlightCopy;
+			}
+
+			console.log("원본 유저 아이디", originalHighlight, "유저 아이디", userId);
+			// // 사용자 ID가 원본 하이라이트의 사용자와 다를 경우 복사본 생성
+			// if (originalHighlight.userId !== userId) {
+			// 	// 원본 하이라이트의 정보를 복사하여 새 하이라이트 생성
+			// 	const highlightCopy = await Highlight.create({
+			// 		bookId: originalHighlight.bookId,
+			// 		pageNum: originalHighlight.pageNum,
+			// 		text: originalHighlight.text,
+			// 		startContainer: originalHighlight.startContainer,
+			// 		endContainer: originalHighlight.endContainer,
+			// 		startOffset: originalHighlight.startOffset,
+			// 		endOffset: originalHighlight.endOffset,
+			// 		memo: originalHighlight.memo,
+			// 		// 기타 필요한 필드가 있다면 여기에 추가
+			// 	});
+
+			// 	// 복사본 하이라이트의 ID를 타겟 ID로 설정
+			// 	targetHighlightId = highlightCopy.id;
+			// 	highlightToConnect = highlightCopy;
+			// }
+
+			// 새로운 링크 생성
+			const newLink = await Link.create({
 				fromHighlightId,
-				toHighlightId,
+				toHighlightId: targetHighlightId,
 				note,
 			});
-			res.status(201).json({ message: "하이라이트 연결 성공", data: link });
+
+			// 사용자와 복사된 하이라이트 연결 (User_Highlight 테이블에 연결)
+			await highlightToConnect.addUser(userId);
+
+			res.status(201).json({ message: "하이라이트 연결 성공", data: newLink });
 		} catch (error) {
-			console.log(error);
-			res.status(500).json({ message: "Link 생성 실패", error: error.message });
+			console.error("링크 생성 실패: ", error);
+			res.status(500).json({ message: "서버 오류 발생", error: error.message });
 		}
 	})
 	// Read (링크 조회)
@@ -151,27 +232,69 @@ router.get("/:fromHighlightId", async (req, res) => {
 	}
 });
 
-// 여러 하이라이트가 선택됐을 때 처리
 router.route("/many").post(async (req, res) => {
 	try {
-		// Assuming req.body.links is an array of objects { fromHighlightId, toHighlightId, note }
-		if (!req.body.links || !Array.isArray(req.body.links)) {
-			return res.status(400).json({ message: "Invalid input format, expected an array of links." });
+		const { userId, links } = req.body;
+		const createdLinks = [];
+		console.log("유저 아이디", userId, "링크 데이터", links);
+
+		for (const link of links) {
+			// const originalHighlight = await Highlight.findByPk(link.toHighlightId);
+			const originalHighlight = await Highlight.findByPk(link.toHighlightId, {
+				include: [
+					{
+						model: User, // User 모델을 include (User 모델과의 연결 설정 필요)
+					},
+				],
+			});
+			if (!originalHighlight) {
+				return res.status(404).json({ message: "Highlight not found." });
+			}
+
+			// 원본 하이라이트의 소유자 확인
+			const isOwner = originalHighlight.Users.some((user) => user.id === userId);
+
+			let targetHighlightId = originalHighlight.id;
+			let highlightToConnect = originalHighlight;
+
+			if (!isOwner) {
+				// 원본 하이라이트의 필요한 정보를 이용하여 복사본 생성
+				const copiedHighlightData = {
+					bookId: originalHighlight.bookId,
+					pageNum: originalHighlight.pageNum,
+					text: originalHighlight.text,
+					startContainer: originalHighlight.startContainer,
+					endContainer: originalHighlight.endContainer,
+					startOffset: originalHighlight.startOffset,
+					endOffset: originalHighlight.endOffset,
+					memo: originalHighlight.memo,
+				};
+
+				const copiedHighlight = await Highlight.create(copiedHighlightData);
+				targetHighlightId = copiedHighlight.id; // 복사본 하이라이트의 ID를 연결 대상으로 설정
+
+				// 복사본 하이라이트에 현재 사용자를 연결
+				await copiedHighlight.addUser(userId);
+			}
+
+			// 연결 대상 하이라이트(원본 또는 복사본)에 대한 링크 생성
+			const newLinkData = {
+				fromHighlightId: link.fromHighlightId,
+				toHighlightId: targetHighlightId,
+				note: link.note,
+				userId: userId, // 링크 생성자
+			};
+
+			const createdLink = await Link.create(newLinkData);
+			createdLinks.push(createdLink);
 		}
 
-		// Validate each link object in the array
-		const isValid = req.body.links.every((link) => link.fromHighlightId && link.toHighlightId);
-
-		if (!isValid) {
-			return res.status(400).json({ message: "One or more links missing required fields." });
-		}
-
-		// Create multiple links
-		const createdLinks = await Link.bulkCreate(req.body.links);
-		res.status(201).json({ message: "Links successfully created", data: createdLinks });
+		res.status(201).json({ message: "다중 링크 생성 성공", data: createdLinks });
 	} catch (error) {
-		console.error("Error creating multiple links: ", error);
-		res.status(500).json({ message: "Server error while creating links", error: error.message });
+		console.error("Error creating multiple links and connecting highlights with user: ", error);
+		res
+			.status(500)
+			.json({ message: "다중 링크 생성 및 하이라이트와 사용자 연결 중 서버 오류 발생", error: error.message });
 	}
 });
 
