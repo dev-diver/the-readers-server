@@ -74,6 +74,27 @@ router.get("/user/:userId/book/:bookId/page/:pageNum", (req, res) => {
 				through: { attributes: [] }, // 연결 테이블의 속성을 제외하고자 할 때
 			},
 		],
+		where: { bookId: bookId, pageNum: pageNum },
+	})
+		.then((highlights) => {
+			res.json(highlights);
+		})
+		.catch((err) => {
+			console.error(err);
+			res.status(500).json({ message: "검색 실패", data: [] });
+		});
+});
+
+router.get("/user/:userId/book/:bookId/", (req, res) => {
+	const { userId, bookId } = req.params;
+	Highlight.findAll({
+		include: [
+			{
+				model: User,
+				where: { id: userId },
+				through: { attributes: [] }, // 연결 테이블의 속성을 제외하고자 할 때
+			},
+		],
 		where: { bookId: bookId },
 	})
 		.then((highlights) => {
