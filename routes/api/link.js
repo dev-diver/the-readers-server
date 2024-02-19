@@ -243,7 +243,7 @@ router.route("/many").post(async (req, res) => {
 			const originalHighlight = await Highlight.findByPk(link.toHighlightId, {
 				include: [
 					{
-						model: User, // User 모델을 include (User 모델과의 연결 설정 필요)
+						model: User, // User 모델을 include
 					},
 				],
 			});
