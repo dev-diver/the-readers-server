@@ -65,6 +65,7 @@ const router = express.Router();
 const { Op } = require("sequelize");
 const Link = require("../../models/link"); // Link 모델 가져오기
 const Highlight = require("../../models/highlight"); // Highlight 모델 가져오기
+const User = require("../../models/user"); // User 모델 가져오기
 
 // Link 생성 API
 router
@@ -89,7 +90,6 @@ router
 		// 	res.status(500).json({ message: "Link 생성 실패", error: error.message });
 		// }
 		const { userId, fromHighlightId, toHighlightId, note } = req.body;
-
 		// 필수 필드 검증
 		if (!fromHighlightId || !toHighlightId || !userId) {
 			return res.status(400).json({ message: "필수 필드가 누락되었습니다." });
@@ -97,16 +97,25 @@ router
 
 		try {
 			// 원본 하이라이트 정보 조회
-			const originalHighlight = await Highlight.findByPk(toHighlightId);
+			// const originalHighlight = await Highlight.findByPk(toHighlightId);
+			const originalHighlight = await Highlight.findByPk(toHighlightId, {
+				include: [
+					{
+						model: User, // User 모델을 include (User 모델과의 연결을 확인하는 설정 필요)
+					},
+				],
+			});
 			if (!originalHighlight) {
 				return res.status(404).json({ message: "원본 하이라이트를 찾을 수 없습니다." });
 			}
 
+			// 원본 하이라이트의 소유자 확인 (여러 소유자가 있을 수 있으므로 적절한 로직 적용 필요)
+			const isOwner = originalHighlight.Users.some((user) => user.id === userId);
+
 			let targetHighlightId = toHighlightId;
 			let highlightToConnect = originalHighlight;
 
-			// 사용자 ID가 원본 하이라이트의 사용자와 다를 경우 복사본 생성
-			if (originalHighlight.userId !== userId) {
+			if (!isOwner) {
 				// 원본 하이라이트의 정보를 복사하여 새 하이라이트 생성
 				const highlightCopy = await Highlight.create({
 					bookId: originalHighlight.bookId,
@@ -119,11 +128,30 @@ router
 					memo: originalHighlight.memo,
 					// 기타 필요한 필드가 있다면 여기에 추가
 				});
-
-				// 복사본 하이라이트의 ID를 타겟 ID로 설정
 				targetHighlightId = highlightCopy.id;
 				highlightToConnect = highlightCopy;
 			}
+
+			console.log("원본 유저 아이디", originalHighlight, "유저 아이디", userId);
+			// // 사용자 ID가 원본 하이라이트의 사용자와 다를 경우 복사본 생성
+			// if (originalHighlight.userId !== userId) {
+			// 	// 원본 하이라이트의 정보를 복사하여 새 하이라이트 생성
+			// 	const highlightCopy = await Highlight.create({
+			// 		bookId: originalHighlight.bookId,
+			// 		pageNum: originalHighlight.pageNum,
+			// 		text: originalHighlight.text,
+			// 		startContainer: originalHighlight.startContainer,
+			// 		endContainer: originalHighlight.endContainer,
+			// 		startOffset: originalHighlight.startOffset,
+			// 		endOffset: originalHighlight.endOffset,
+			// 		memo: originalHighlight.memo,
+			// 		// 기타 필요한 필드가 있다면 여기에 추가
+			// 	});
+
+			// 	// 복사본 하이라이트의 ID를 타겟 ID로 설정
+			// 	targetHighlightId = highlightCopy.id;
+			// 	highlightToConnect = highlightCopy;
+			// }
 
 			// 새로운 링크 생성
 			const newLink = await Link.create({
@@ -211,14 +239,25 @@ router.route("/many").post(async (req, res) => {
 		console.log("유저 아이디", userId, "링크 데이터", links);
 
 		for (const link of links) {
-			const originalHighlight = await Highlight.findByPk(link.toHighlightId);
+			// const originalHighlight = await Highlight.findByPk(link.toHighlightId);
+			const originalHighlight = await Highlight.findByPk(link.toHighlightId, {
+				include: [
+					{
+						model: User, // User 모델을 include (User 모델과의 연결 설정 필요)
+					},
+				],
+			});
 			if (!originalHighlight) {
 				return res.status(404).json({ message: "Highlight not found." });
 			}
 
-			let targetHighlightId = originalHighlight.id;
+			// 원본 하이라이트의 소유자 확인
+			const isOwner = originalHighlight.Users.some((user) => user.id === userId);
 
-			if (originalHighlight.userId !== userId) {
+			let targetHighlightId = originalHighlight.id;
+			let highlightToConnect = originalHighlight;
+
+			if (!isOwner) {
 				// 원본 하이라이트의 필요한 정보를 이용하여 복사본 생성
 				const copiedHighlightData = {
 					bookId: originalHighlight.bookId,
