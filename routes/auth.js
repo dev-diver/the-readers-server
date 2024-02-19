@@ -13,7 +13,21 @@ router.get("/", (req, res) => {
 router.post("/signup", (req, res) => {
 	const user = ({ nick, email, password, profileImg } = req.body);
 	User.create(user)
-		.then((user) => res.status(201).json(user))
+		.then((user) => {
+			var token = createToken();
+			let result = {
+				id: user.id,
+				nick: user.nick,
+				email: user.email,
+				profileImg: user.profileImg,
+				token: token,
+			};
+			console.log(result);
+			res.status(201).json({
+				message: "가입 성공",
+				data: result,
+			});
+		})
 		.catch((err) => {
 			if (err instanceof UniqueConstraintError) {
 				return res.status(409).json({ message: "이미 존재하는 이메일입니다.", data: null });
