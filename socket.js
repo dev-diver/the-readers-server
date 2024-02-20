@@ -88,12 +88,12 @@ module.exports = (server) => {
 		});
 
 		socket.on("request-attention-scroll", (data) => {
-			console.log("request-attention-scroll", data);
+			// console.log("request-attention-scroll", data);
 			broadcastToRoomExceptMe("receive-attention-scroll", data);
 		});
 
 		socket.on("request-attention-book", (data) => {
-			console.log("request-attention-book", data);
+			// console.log("request-attention-book", data);
 			broadcastToRoomExceptMe("receive-attention-book", data);
 		});
 
