@@ -14,7 +14,7 @@ const initPageModel = (sequelize, DataTypes) => {
 				},
 			},
 			pageNumber: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.STRING(100),
 				allowNull: false,
 			},
 			readTime: {
