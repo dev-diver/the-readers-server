@@ -70,78 +70,6 @@ const { Op } = require("sequelize");
 const Chart = require("../../models/chart"); // Chart 모델 가져오기
 const Page = require("../../models/page"); // Page 모델 가져오기
 
-// 차트 생성 API
-router
-	.route("/")
-	// Create (차트 페이지 별 시간 저장)
-	.post(async (req, res) => {
-		const { UserId, BookId, page, time } = req.body;
-		// 필수 필드 검증
-		if (!UserId || !BookId || !page || !time) {
-			res.status(400).json({ message: "필수 필드가 누락되었습니다." });
-			return;
-		}
-		try {
-			const chart = await Chart.create({
-				UserId,
-				BookId,
-				page,
-				time,
-			});
-
-			res.status(201).json({ message: "차트 연결 성공", data: chart });
-		} catch (error) {
-			console.log(error);
-			res.status(500).json({ message: "Chart 생성 실패", error: error.message });
-		}
-	})
-	// Read (차트 조회)
-	.get(async (req, res) => {
-		const charts = await Chart.findAll();
-		try {
-			res.json({ message: "차트 있음", data: charts });
-		} catch (error) {
-			console.log(error);
-			res.status(500).json({ message: "차트 없음", data: [] });
-		}
-	})
-	// Update (차트 수정)
-	.put(async (req, res) => {
-		const { id, UserId, BookId, page, time } = req.body;
-		const chart = await Chart.findByPk(id);
-		try {
-			if (chart) {
-				chart.UserId = UserId;
-				chart.BookId = BookId;
-				chart.page = page;
-				chart.time = time;
-				await chart.save();
-				res.json({ message: "차트 수정 성공", data: chart });
-			} else {
-				res.json({ message: "없는 차트입니다.", data: [] });
-			}
-		} catch (error) {
-			console.log(error);
-			res.status(500).json({ message: "차트 수정 실패", data: [] });
-		}
-	})
-	// Delete (차트 삭제)
-	.delete(async (req, res) => {
-		const id = req.body.id;
-		const chart = await Chart.findByPk(id);
-		try {
-			if (chart) {
-				await chart.destroy();
-				res.json({ message: "차트 삭제 성공", data: chart });
-			} else {
-				res.json({ message: "없는 차트입니다.", data: [] });
-			}
-		} catch (error) {
-			console.log(error);
-			res.status(500).json({ message: "차트 삭제 실패", data: [] });
-		}
-	});
-
 router.get("/book/:bookId/user/:userId", async (req, res) => {
 	const { bookId, userId } = req.params;
 	const initializePagesForChart = async (chartId, totalPages) => {
@@ -196,6 +124,40 @@ router.get("/book/:bookId/user/:userId", async (req, res) => {
 		}
 	} catch (error) {
 		console.error("Error handling chart:", error);
+		return res.status(500).json({ message: "Internal server error." });
+	}
+});
+
+router.put("/:chartId", async (req, res) => {
+	const { chartId } = req.params;
+	const { currentPage, time } = req.body;
+
+	console.log("chartId:", chartId);
+	console.log("currentPage:", currentPage);
+	console.log("time:", time);
+	if (!time) {
+		return res.status(400).json({ message: "Time is required." });
+	}
+
+	try {
+		// 페이지 찾기
+		const page = await Page.findOne({
+			where: {
+				ChartId: chartId,
+				pageNumber: currentPage,
+			},
+		});
+
+		if (page) {
+			// 페이지 업데이트
+			page.readTime = time;
+			await page.save();
+			return res.status(200).json({ message: "Page updated.", data: page });
+		} else {
+			return res.status(404).json({ message: "Page not found." });
+		}
+	} catch (error) {
+		console.error("Error updating page:", error);
 		return res.status(500).json({ message: "Internal server error." });
 	}
 });
