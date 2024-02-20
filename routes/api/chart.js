@@ -68,6 +68,7 @@ const express = require("express");
 const router = express.Router();
 const { Op } = require("sequelize");
 const Chart = require("../../models/chart"); // Chart 모델 가져오기
+const Page = require("../../models/page"); // Page 모델 가져오기
 
 // 차트 생성 API
 router
@@ -141,49 +142,62 @@ router
 		}
 	});
 
-// router.get("/:bookId/:userId", async (req, res) => {
-// 	const { bookId, userId } = req.params;
-// 	try {
-//     // Chart 찾기 또는 생성
-//     let chart = await Chart.findOne({
-//       where: {
-//         UserId: userId,
-//         BookId: bookId
-//       }
-//     });
+router.get("/book/:bookId/user/:userId", async (req, res) => {
+	const { bookId, userId } = req.params;
+	const initializePagesForChart = async (chartId, totalPages) => {
+		const pages = Array.from({ length: totalPages }, (_, i) => {
+			return { ChartId: chartId, pageNumber: i + 1, readTime: 0 };
+		});
+		try {
+			// bulkCreate를 사용하여 모든 페이지 인스턴스를 한 번에 삽입
+			await Page.bulkCreate(pages);
+			console.log(`All ${totalPages} pages initialized for chart ID ${chartId}.`);
+		} catch (error) {
+			console.error("Failed to initialize pages:", error);
+			throw error; // 오류를 다시 던져서 상위 호출자가 처리할 수 있도록 함
+		}
+	};
 
-//     if (!chart) {
-//       // 책 정보 불러오기
-//       const book = await Book.findByPk(bookId);
-//       if (!book) {
-//         return res.status(404).json({ message: "Book not found." });
-//       }
+	try {
+		// Chart 찾기
+		let chart = await Chart.findOne({
+			where: {
+				UserId: userId,
+				BookId: bookId,
+			},
+		});
 
-//       // Chart가 없으면 새로 생성
-//       chart = await Chart.create({
-//         UserId: userId,
-//         BookId: bookId,
-//         totalPages: book.totalPages // 책의 총 페이지 수를 사용, 적절히 조정 필요
-//       });
+		if (chart) {
+			// 페이지 찾기
+			const pages = await Page.findAll({
+				where: { ChartId: chart.id },
+				attributes: ["pageNumber", "readTime"],
+				order: [["pageNumber", "ASC"]],
+			});
+			return res.status(200).json({ chartId: chart.id, pages });
+		} else {
+			// Chart가 없으면 새로 생성
+			chart = await Chart.create({
+				UserId: userId,
+				BookId: bookId,
+				// totalPages: book.totalPages, // 책의 총 페이지 수를 사용, 적절히 조정 필요
+				totalPages: 20, // 임시
+			});
+			// page 초기화
+			await initializePagesForChart(chart.id, 20); // 20 임시. book.totalPages
+			// 페이지 정보 반환
+			const pages = await Page.findAll({
+				where: { ChartId: chart.id },
+				attributes: ["pageNumber", "readTime"],
+				order: [["pageNumber", "ASC"]],
+			});
 
-//       // Page 초기화
-//       await initializePagesForChart(chart.id, book.totalPages);
-
-//       return res.status(201).json({ message: "Chart created and pages initialized." });
-//     } else {
-//       // 기존 Chart에 대한 Page 정보 불러오기
-//       const pages = await Page.findAll({
-//         where: { ChartId: chart.id },
-//         attributes: ['pageNum', 'readTime'],
-//         order: [['pageNum', 'ASC']]
-//       });
-
-//       return res.status(200).json(pages);
-//     }
-//   } catch (error) {
-//     console.error('Error handling chart:', error);
-//     return res.status(500).json({ message: "Internal server error." });
-//   }
-// });
+			return res.status(201).json({ chartId: chart.id, pages, message: "Chart created and pages initialized." });
+		}
+	} catch (error) {
+		console.error("Error handling chart:", error);
+		return res.status(500).json({ message: "Internal server error." });
+	}
+});
 
 module.exports = router;
