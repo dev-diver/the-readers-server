@@ -100,19 +100,14 @@ module.exports = (server) => {
 		//pointer
 		socket.on("move-pointer", (data) => {
 			const pointerData = {
-				user: data.user,
+				...data,
 				color: colors[data.user.id % colors.length], // 색상 추가
-				bookId: data.bookId,
-				pageNum: data.pageNum,
-				x: data.x,
-				y: data.y,
 			};
 			broadcastToRoomIncludeMe("update-pointer", pointerData);
 		});
 
 		//canvas
 		socket.on("draw-canvas", (data) => {
-			// console.log("draw-canvas", data);
 			broadcastToRoomExceptMe("share-canvas", data);
 		});
 		//highlight
