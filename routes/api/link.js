@@ -72,23 +72,6 @@ router
 	.route("/")
 	// Create (하이라이트끼리 링크로 연결)
 	.post(async (req, res) => {
-		// console.log("받은 것", req.body);
-		// const { fromHighlightId, toHighlightId, note } = req.body;
-		// // 필수 필드 검증
-		// if (!fromHighlightId || !toHighlightId) {
-		// 	return res.status(400).json({ message: "필수 필드가 누락되었습니다." });
-		// }
-		// try {
-		// 	const link = await Link.create({
-		// 		fromHighlightId,
-		// 		toHighlightId,
-		// 		note,
-		// 	});
-		// 	res.status(201).json({ message: "하이라이트 연결 성공", data: link });
-		// } catch (error) {
-		// 	console.log(error);
-		// 	res.status(500).json({ message: "Link 생성 실패", error: error.message });
-		// }
 		const { userId, fromHighlightId, toHighlightId, note } = req.body;
 		// 필수 필드 검증
 		if (!fromHighlightId || !toHighlightId || !userId) {
