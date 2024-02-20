@@ -7,7 +7,8 @@ module.exports = (server) => {
 			origin: ["http://localhost:3001", "http://localhost:3000"], // 필요한 경우 CORS 설정
 			credentials: true,
 		},
-		path: "/socket", // 클라이언트와 동일한 경로를 설정
+		path: "/socket", // 클라이언트와 동일한 경로를 설정,
+		connectionStateRecovery: {},
 	});
 
 	const colors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]; // 색상 배열
@@ -54,10 +55,9 @@ module.exports = (server) => {
 			broadcastToRoomExceptMe(
 				"other-user-position",
 				{
-					scroll: -10,
+					currentPage: -10,
 					user: roomUser,
 					room: roomUser.roomId,
-					flag: 1,
 				},
 				roomUser.roomId
 			);
