@@ -1,5 +1,9 @@
 const { Server } = require("socket.io");
 const { userJoin, getRoomUsers, userLeave, userLeaveById } = require("./utils/user");
+const colors = ["#8884d8", "#82ca9d", "#E69F00", "#ff4b73", "#56B4E9"];
+function coloringUser(userId) {
+	return colors[(Number(userId) - 1) % colors.length];
+}
 
 module.exports = (server) => {
 	const io = new Server(server, {
@@ -10,8 +14,6 @@ module.exports = (server) => {
 		path: "/socket", // 클라이언트와 동일한 경로를 설정,
 		connectionStateRecovery: {},
 	});
-
-	const colors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]; // 색상 배열
 
 	io.on("connection", (socket) => {
 		const broadcastToRoomExceptMe = (event, data, givenRoomId) => {
@@ -99,11 +101,7 @@ module.exports = (server) => {
 
 		//pointer
 		socket.on("move-pointer", (data) => {
-			const pointerData = {
-				...data,
-				color: colors[data.user.id % colors.length], // 색상 추가
-			};
-			broadcastToRoomIncludeMe("update-pointer", pointerData);
+			broadcastToRoomIncludeMe("update-pointer", data);
 		});
 
 		//canvas
