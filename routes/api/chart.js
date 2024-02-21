@@ -69,23 +69,25 @@ const router = express.Router();
 const { Op } = require("sequelize");
 const Chart = require("../../models/chart"); // Chart 모델 가져오기
 const Page = require("../../models/page"); // Page 모델 가져오기
+const Book = require("../../models/book"); // Book 모델 가져오기
+
+const initializePagesForChart = async (chartId, totalPage) => {
+	const pages = Array.from({ length: totalPage }, (_, i) => {
+		return { ChartId: chartId, pageNumber: i + 1, readTime: 0 };
+	});
+	try {
+		// bulkCreate를 사용하여 모든 페이지 인스턴스를 한 번에 삽입
+		const results = await Page.bulkCreate(pages);
+		return results;
+		console.log(`All ${totalPage} pages initialized for chart ID ${chartId}.`);
+	} catch (error) {
+		console.error("Failed to initialize pages:", error);
+		throw error; // 오류를 다시 던져서 상위 호출자가 처리할 수 있도록 함
+	}
+};
 
 router.get("/book/:bookId/user/:userId", async (req, res) => {
 	const { bookId, userId } = req.params;
-	const initializePagesForChart = async (chartId, totalPages) => {
-		const pages = Array.from({ length: totalPages }, (_, i) => {
-			return { ChartId: chartId, pageNumber: i + 1, readTime: 0 };
-		});
-		try {
-			// bulkCreate를 사용하여 모든 페이지 인스턴스를 한 번에 삽입
-			await Page.bulkCreate(pages);
-			console.log(`All ${totalPages} pages initialized for chart ID ${chartId}.`);
-		} catch (error) {
-			console.error("Failed to initialize pages:", error);
-			throw error; // 오류를 다시 던져서 상위 호출자가 처리할 수 있도록 함
-		}
-	};
-
 	try {
 		// Chart 찾기
 		let chart = await Chart.findOne({
@@ -97,22 +99,32 @@ router.get("/book/:bookId/user/:userId", async (req, res) => {
 
 		if (chart) {
 			// 페이지 찾기
-			const pages = await Page.findAll({
+			let pages = await Page.findAll({
 				where: { ChartId: chart.id },
 				attributes: ["pageNumber", "readTime"],
 				order: [["pageNumber", "ASC"]],
 			});
+			if (pages.length === 0) {
+				pages = await initializePagesForChart(chart.id, chart.totalPage);
+				console.log("results", pages);
+			}
 			return res.status(200).json({ chartId: chart.id, pages });
 		} else {
+			let book = await Book.findOne({
+				where: {
+					id: bookId,
+				},
+			});
+			const totalPage = book.totalPage;
+			console.log("totalPage", totalPage);
 			// Chart가 없으면 새로 생성
 			chart = await Chart.create({
 				UserId: userId,
 				BookId: bookId,
-				// totalPages: book.totalPages, // 책의 총 페이지 수를 사용, 적절히 조정 필요
-				totalPages: 20, // 임시
+				totalPage: totalPage, // 임시
 			});
 			// page 초기화
-			await initializePagesForChart(chart.id, 20); // 20 임시. book.totalPages
+			await initializePagesForChart(chart.id, totalPage); // 20 임시. book.totalPages
 			// 페이지 정보 반환
 			const pages = await Page.findAll({
 				where: { ChartId: chart.id },
