@@ -80,7 +80,6 @@ router
 
 		try {
 			// 원본 하이라이트 정보 조회
-			// const originalHighlight = await Highlight.findByPk(toHighlightId);
 			const originalHighlight = await Highlight.findByPk(toHighlightId, {
 				include: [
 					{
@@ -88,11 +87,12 @@ router
 					},
 				],
 			});
+
 			if (!originalHighlight) {
 				return res.status(404).json({ message: "원본 하이라이트를 찾을 수 없습니다." });
 			}
 
-			// 원본 하이라이트의 소유자 확인 (여러 소유자가 있을 수 있으므로 적절한 로직 적용 필요)
+			// 원본 하이라이트의 소유자 확인
 			const isOwner = originalHighlight.Users.some((user) => user.id === userId);
 
 			let targetHighlightId = toHighlightId;
@@ -116,25 +116,6 @@ router
 			}
 
 			console.log("원본 유저 아이디", originalHighlight, "유저 아이디", userId);
-			// // 사용자 ID가 원본 하이라이트의 사용자와 다를 경우 복사본 생성
-			// if (originalHighlight.userId !== userId) {
-			// 	// 원본 하이라이트의 정보를 복사하여 새 하이라이트 생성
-			// 	const highlightCopy = await Highlight.create({
-			// 		bookId: originalHighlight.bookId,
-			// 		pageNum: originalHighlight.pageNum,
-			// 		text: originalHighlight.text,
-			// 		startContainer: originalHighlight.startContainer,
-			// 		endContainer: originalHighlight.endContainer,
-			// 		startOffset: originalHighlight.startOffset,
-			// 		endOffset: originalHighlight.endOffset,
-			// 		memo: originalHighlight.memo,
-			// 		// 기타 필요한 필드가 있다면 여기에 추가
-			// 	});
-
-			// 	// 복사본 하이라이트의 ID를 타겟 ID로 설정
-			// 	targetHighlightId = highlightCopy.id;
-			// 	highlightToConnect = highlightCopy;
-			// }
 
 			// 새로운 링크 생성
 			const newLink = await Link.create({
