@@ -229,7 +229,7 @@ router
 		})
 			.then((books) => {
 				if (books.length === 0) {
-					return res.status(404).json({ message: "책을 찾을 수 없습니다." });
+					return res.status(404).json({ message: "찾으시는 책이 없습니다." });
 				}
 				console.log(books);
 				res.json({ message: "검색 성공", data: books });
