@@ -36,7 +36,7 @@ const initChartModel = (sequelize, DataTypes) => {
 			// 	allowNull: false, // 시간은 필수이므로 null을 허용하지 않음
 			// },
 			// 기타 필드 정의
-			totalPages: {
+			totalPage: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
 			},
